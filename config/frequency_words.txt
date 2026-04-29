@@ -4,7 +4,7 @@
 [WORD_GROUPS]
 
 [AI专题]
-@120
+@180
 /(?<![a-zA-Z])ai(?![a-zA-Z])/i => AI
 人工智能
 AIGC
@@ -36,6 +36,14 @@ B200
 无人驾驶
 机器人
 具身智能
+AI Agent
+Agentic AI
+函数调用
+工具调用
+工作流自动化
+提示词工程
+向量数据库
+知识库问答
 
 /\bOpenAI\b|\bChatGPT\b|\bSora\b|\bDALL-E\b|\bSam Altman\b/i => OpenAI
 /\bAnthropic\b|\bClaude\b|\bDario Amodei\b/i => Claude
@@ -46,11 +54,60 @@ B200
 /\bNVIDIA\b|\bJensen Huang\b/i => NVIDIA
 /\bAMD\b|\bRyzen AI\b/i => AMD AI
 /\bIntel\b|\bGaudi\b/i => Intel AI
+/\bAmazon\b|\bAWS\b|\bBedrock\b|\bNova\b/i => AWS AI
+/\bPerplexity\b/i => Perplexity
+/\bCohere\b/i => Cohere
+/\bScale AI\b/i => Scale AI
+/\bDatabricks\b/i => Databricks AI
+/\bSnowflake\b|\bCortex\b/i => Snowflake AI
+/\bPalantir\b|\bAIP\b/i => Palantir AIP
+/\bSalesforce\b|\bAgentforce\b/i => Salesforce Agentforce
+/\bServiceNow\b/i => ServiceNow AI
+/\bAdobe\b|\bFirefly\b/i => Adobe Firefly
+/\bHugging Face\b|\bTransformers\b/i => Hugging Face
+/\bLangChain\b|\bLangGraph\b/i => LangChain
+/\bPinecone\b|\bWeaviate\b|\bMilvus\b/i => Vector DB
+/\bCoreWeave\b|\bCerebras\b|\bGroq\b|\bSambaNova\b|\bTogether AI\b/i => AI Infra
 
-DeepSeek
+# China AI / Agent companies & products
+/\bDeepSeek\b|深度求索/i => DeepSeek
 通义千问
+Qwen
 文心一言
+ERNIE
 豆包
+扣子
+Coze
+元宝
+混元
+Hunyuan
 Kimi
+月之暗面
 智谱
+GLM
+MiniMax
+海螺
+百川智能
+零一万物
+商汤
+日日新
+阶跃星辰
+面壁智能
+昆仑万维
+天工大模型
 讯飞星火
+火山引擎
+阿里云百炼
+
+# China / US embodied AI & robotics
+宇树
+Unitree
+优必选
+傅利叶
+智元机器人
+Figure AI
+Agility Robotics
+Boston Dynamics
+1X
+Tesla Bot
+Optimus
