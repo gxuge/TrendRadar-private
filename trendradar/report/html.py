@@ -31,7 +31,7 @@ def render_html_content(
     """渲染HTML内容
 
     Args:
-        report_data: 报告数据字典，包含 stats, new_titles, failed_ids, total_new_count
+        report_data: 报告数据字典，包含 stats, event_clusters, new_titles, failed_ids, total_new_count
         total_titles: 新闻总数
         mode: 报告模式 ("daily", "current", "incremental")
         update_info: 更新信息（可选）
@@ -48,7 +48,7 @@ def render_html_content(
         渲染后的 HTML 字符串
     """
     # 默认区域顺序
-    default_region_order = ["hotlist", "rss", "new_items", "standalone", "ai_analysis"]
+    default_region_order = ["events", "hotlist", "rss", "new_items", "standalone", "ai_analysis"]
     if region_order is None:
         region_order = default_region_order
 
@@ -463,6 +463,95 @@ def render_html_content(
             /* 热榜统计区样式 */
             .hotlist-section {
                 /* 默认无边框，由 section-divider 动态添加 */
+            }
+
+            .events-section {
+                margin-top: 8px;
+            }
+
+            .events-section-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 14px;
+            }
+
+            .events-section-title {
+                color: #1a1a1a;
+                font-size: 16px;
+                font-weight: 600;
+            }
+
+            .events-section-count {
+                color: #666;
+                font-size: 12px;
+                font-weight: 500;
+            }
+
+            .events-grid {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .event-card {
+                border: 1px solid #e5e7eb;
+                border-radius: 10px;
+                padding: 12px 14px;
+                background: #fcfcff;
+            }
+
+            .event-card-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+            }
+
+            .event-card-title {
+                font-size: 14px;
+                line-height: 1.45;
+                color: #1f2937;
+                margin: 0;
+                font-weight: 600;
+                flex: 1;
+                min-width: 0;
+            }
+
+            .event-card-title .news-link {
+                font-weight: 600;
+            }
+
+            .event-hot {
+                flex-shrink: 0;
+                font-size: 11px;
+                color: #b45309;
+                background: #fef3c7;
+                border-radius: 10px;
+                padding: 3px 8px;
+                font-weight: 600;
+            }
+
+            .event-meta {
+                margin-top: 8px;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+
+            .event-badge {
+                font-size: 11px;
+                color: #374151;
+                background: #f3f4f6;
+                border-radius: 999px;
+                padding: 2px 8px;
+            }
+
+            .event-related {
+                margin-top: 8px;
+                color: #6b7280;
+                font-size: 12px;
+                line-height: 1.45;
             }
 
             .new-section {
@@ -1326,6 +1415,60 @@ def render_html_content(
                 </div>"""
 
     # 生成热点词汇统计部分的HTML
+    events_html = ""
+    event_clusters = report_data.get("event_clusters", [])
+    if event_clusters:
+        events_html += f"""
+                <div class="events-section">
+                    <div class="events-section-header">
+                        <div class="events-section-title">事件卡片</div>
+                        <div class="events-section-count">{len(event_clusters)} 条</div>
+                    </div>
+                    <div class="events-grid">"""
+
+        for event in event_clusters:
+            title = html_escape(event.get("title", ""))
+            url = html_escape(event.get("url", ""))
+            source_count = event.get("source_count", 0)
+            occurrence_count = event.get("occurrence_count", 0)
+            hot_score = event.get("hot_score", 0)
+            sources = event.get("sources", [])
+            keywords = event.get("keywords", [])
+            related_titles = event.get("related_titles", [])
+
+            if url:
+                title_html = f'<a href="{url}" target="_blank" class="news-link">{title}</a>'
+            else:
+                title_html = title
+
+            events_html += f"""
+                        <div class="event-card">
+                            <div class="event-card-header">
+                                <div class="event-card-title">{title_html}</div>
+                                <div class="event-hot">热度 {hot_score}</div>
+                            </div>
+                            <div class="event-meta">
+                                <span class="event-badge">来源 {source_count}</span>
+                                <span class="event-badge">提及 {occurrence_count}</span>"""
+
+            for s in sources[:4]:
+                events_html += f'<span class="event-badge">{html_escape(s)}</span>'
+            for k in keywords[:3]:
+                events_html += f'<span class="event-badge">#{html_escape(k)}</span>'
+
+            events_html += "</div>"
+
+            if related_titles:
+                related_safe = "；".join(html_escape(x) for x in related_titles[:2])
+                events_html += f'<div class="event-related">相关：{related_safe}</div>'
+
+            events_html += """
+                        </div>"""
+
+        events_html += """
+                    </div>
+                </div>"""
+
     stats_html = ""
     tab_bar_html = ""
     if report_data["stats"]:
@@ -1885,6 +2028,7 @@ def render_html_content(
 
     # 准备各区域内容映射
     region_contents = {
+        "events": events_html,
         "hotlist": stats_html,
         "rss": rss_stats_html,
         "new_items": (new_titles_html, rss_new_html),  # 元组，分别处理

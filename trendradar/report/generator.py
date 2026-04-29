@@ -9,6 +9,144 @@
 
 from pathlib import Path
 from typing import Dict, List, Optional, Callable
+import re
+
+
+def _normalize_title(title: str) -> str:
+    """Normalize title for fuzzy clustering."""
+    if not title:
+        return ""
+    t = title.lower()
+    # keep CJK, letters and numbers, replace others with space
+    t = re.sub(r"[^0-9a-z\u4e00-\u9fff]+", " ", t)
+    return " ".join(t.split())
+
+
+def _title_ngrams(normalized_title: str) -> set:
+    """Character-level bi-grams + uni-grams for mixed Chinese/English headlines."""
+    compact = normalized_title.replace(" ", "")
+    if not compact:
+        return set()
+    grams = set()
+    for i in range(len(compact)):
+        grams.add(compact[i])
+        if i + 1 < len(compact):
+            grams.add(compact[i:i + 2])
+    return grams
+
+
+def _jaccard(a: set, b: set) -> float:
+    if not a or not b:
+        return 0.0
+    inter = len(a & b)
+    union = len(a | b)
+    return inter / union if union else 0.0
+
+
+def _title_score(title_data: Dict) -> float:
+    """Simple hotness score for choosing cluster representative."""
+    count = title_data.get("count", 1) or 1
+    ranks = title_data.get("ranks", []) or []
+    min_rank = min(ranks) if ranks else 99
+    rank_bonus = max(0, 15 - min(min_rank, 15))
+    new_bonus = 2 if title_data.get("is_new", False) else 0
+    return count * 2 + rank_bonus + new_bonus
+
+
+def _build_event_clusters(
+    processed_stats: List[Dict],
+    max_clusters: int = 12,
+    similarity_threshold: float = 0.42,
+) -> List[Dict]:
+    """Build de-duplicated event cards from keyword-grouped titles."""
+    flat_items: List[Dict] = []
+    for stat in processed_stats:
+        keyword = stat.get("word", "")
+        for td in stat.get("titles", []):
+            title = td.get("title", "")
+            normalized = _normalize_title(title)
+            grams = _title_ngrams(normalized)
+            if not grams:
+                continue
+            item = {
+                "title": title,
+                "normalized": normalized,
+                "grams": grams,
+                "source_name": td.get("source_name", ""),
+                "url": td.get("url", ""),
+                "mobile_url": td.get("mobile_url", ""),
+                "count": td.get("count", 1),
+                "ranks": td.get("ranks", []),
+                "is_new": td.get("is_new", False),
+                "keyword": keyword,
+                "score": _title_score(td),
+            }
+            flat_items.append(item)
+
+    if not flat_items:
+        return []
+
+    # highest score first improves representative quality
+    flat_items.sort(key=lambda x: x["score"], reverse=True)
+
+    clusters: List[Dict] = []
+    for item in flat_items:
+        best_idx = -1
+        best_sim = 0.0
+        for idx, c in enumerate(clusters):
+            rep = c["rep"]
+            sim = _jaccard(item["grams"], rep["grams"])
+            # extra containment heuristic for near-identical long titles
+            contains = (
+                len(item["normalized"]) >= 8
+                and (
+                    item["normalized"] in rep["normalized"]
+                    or rep["normalized"] in item["normalized"]
+                )
+            )
+            if contains:
+                sim = max(sim, 0.7)
+            if sim > best_sim:
+                best_sim = sim
+                best_idx = idx
+
+        if best_idx >= 0 and best_sim >= similarity_threshold:
+            clusters[best_idx]["items"].append(item)
+            # keep strongest rep
+            if item["score"] > clusters[best_idx]["rep"]["score"]:
+                clusters[best_idx]["rep"] = item
+        else:
+            clusters.append({"rep": item, "items": [item]})
+
+    event_cards: List[Dict] = []
+    for c in clusters:
+        items = c["items"]
+        rep = c["rep"]
+        sources = sorted({x["source_name"] for x in items if x.get("source_name")})
+        keywords = sorted({x["keyword"] for x in items if x.get("keyword")})
+        related_titles = []
+        for x in sorted(items, key=lambda y: y["score"], reverse=True):
+            if x["title"] != rep["title"]:
+                related_titles.append(x["title"])
+            if len(related_titles) >= 3:
+                break
+
+        event_cards.append(
+            {
+                "title": rep["title"],
+                "url": rep.get("mobile_url") or rep.get("url", ""),
+                "source_count": len(sources),
+                "sources": sources[:4],
+                "occurrence_count": len(items),
+                "keywords": keywords[:3],
+                "related_titles": related_titles,
+                "hot_score": round(sum(x["score"] for x in items), 1),
+                "is_new": any(x.get("is_new", False) for x in items),
+            }
+        )
+
+    event_cards.sort(key=lambda x: (x["hot_score"], x["occurrence_count"]), reverse=True)
+    return event_cards[:max_clusters]
 
 
 def prepare_report_data(
@@ -129,8 +267,11 @@ def prepare_report_data(
             }
         )
 
+    event_clusters = _build_event_clusters(processed_stats)
+
     return {
         "stats": processed_stats,
+        "event_clusters": event_clusters,
         "new_titles": processed_new_titles,
         "failed_ids": failed_ids or [],
         "total_new_count": sum(
