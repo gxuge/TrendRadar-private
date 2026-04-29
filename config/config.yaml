@@ -165,6 +165,15 @@ rss:
       name: "The Verge"
       url: "https://www.theverge.com/rss/index.xml"
 
+    # AIbase (via RSSHub)
+    - id: "aibase-news"
+      name: "AIbase News"
+      url: "https://rsshub.app/aibase/news"
+
+    - id: "aibase-daily"
+      name: "AIbase Daily"
+      url: "https://rsshub.app/aibase/daily"
+
     # 自定义源示例
     # - id: "custom-feed"
     #   name: "自定义源"
