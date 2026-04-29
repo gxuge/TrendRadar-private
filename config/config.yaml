@@ -127,6 +127,44 @@ rss:
       name: "雅虎财经"
       url: "https://finance.yahoo.com/news/rssindex"
 
+    # US mainstream media
+    - id: "nyt-home"
+      name: "New York Times"
+      url: "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml"
+
+    - id: "cnn-top"
+      name: "CNN Top Stories"
+      url: "http://rss.cnn.com/rss/edition.rss"
+
+    - id: "npr-news"
+      name: "NPR News"
+      url: "https://feeds.npr.org/1001/rss.xml"
+
+    - id: "wsj-world"
+      name: "WSJ World News"
+      url: "https://feeds.a.dj.com/rss/RSSWorldNews.xml"
+
+    - id: "washingtonpost-world"
+      name: "Washington Post World"
+      url: "https://feeds.washingtonpost.com/rss/world"
+
+    - id: "foxnews-latest"
+      name: "Fox News Latest"
+      url: "https://moxie.foxnews.com/google-publisher/latest.xml"
+
+    # US tech and business media
+    - id: "cnbc-top"
+      name: "CNBC Top News"
+      url: "https://www.cnbc.com/id/100003114/device/rss/rss.html"
+
+    - id: "techcrunch"
+      name: "TechCrunch"
+      url: "https://techcrunch.com/feed/"
+
+    - id: "the-verge"
+      name: "The Verge"
+      url: "https://www.theverge.com/rss/index.xml"
+
     # 自定义源示例
     # - id: "custom-feed"
     #   name: "自定义源"
