@@ -53,6 +53,27 @@ def _title_score(title_data: Dict) -> float:
     return count * 2 + rank_bonus + new_bonus
 
 
+def _source_authority_weight(source_name: str) -> float:
+    """Heuristic source authority weight (0~1)."""
+    if not source_name:
+        return 0.45
+    s = source_name.lower()
+    high = (
+        "reuters", "ap ", "associated press", "wsj", "wall street journal",
+        "ft", "financial times", "economist", "bloomberg", "cnbc", "npr",
+        "new york times", "washington post", "hacker news",
+        "财联社", "华尔街见闻", "澎湃", "新华社", "人民日报", "经济观察"
+    )
+    mid = (
+        "cnn", "fox", "the verge", "techcrunch", "yahoo", "知乎", "微博", "百度"
+    )
+    if any(k in s for k in high):
+        return 0.9
+    if any(k in s for k in mid):
+        return 0.7
+    return 0.55
+
+
 def _build_event_clusters(
     processed_stats: List[Dict],
     max_clusters: int = 12,
@@ -131,21 +152,45 @@ def _build_event_clusters(
             if len(related_titles) >= 3:
                 break
 
+        hot_score = round(sum(x["score"] for x in items), 1)
+        source_count = len(sources)
+        occurrence_count = len(items)
+        keyword_count = len(keywords)
+        new_ratio = sum(1 for x in items if x.get("is_new", False)) / max(len(items), 1)
+        avg_count = sum((x.get("count", 1) or 1) for x in items) / max(len(items), 1)
+
+        # scoring (0~100): hot base + spread + momentum + authority
+        hot_component = min(hot_score, 80) / 80 * 42
+        spread_component = min(source_count, 6) / 6 * 18 + min(keyword_count, 4) / 4 * 6
+        momentum_component = new_ratio * 18 + min(avg_count, 5) / 5 * 6
+        if sources:
+            authority_avg = sum(_source_authority_weight(s) for s in sources) / len(sources)
+        else:
+            authority_avg = 0.5
+        authority_component = authority_avg * 10
+        total_score = round(hot_component + spread_component + momentum_component + authority_component, 1)
+
         event_cards.append(
             {
                 "title": rep["title"],
                 "url": rep.get("mobile_url") or rep.get("url", ""),
-                "source_count": len(sources),
+                "source_count": source_count,
                 "sources": sources[:4],
-                "occurrence_count": len(items),
+                "occurrence_count": occurrence_count,
                 "keywords": keywords[:3],
                 "related_titles": related_titles,
-                "hot_score": round(sum(x["score"] for x in items), 1),
+                "hot_score": hot_score,
+                "score_breakdown": {
+                    "spread": round(spread_component, 1),
+                    "momentum": round(momentum_component, 1),
+                    "authority": round(authority_component, 1),
+                },
+                "total_score": total_score,
                 "is_new": any(x.get("is_new", False) for x in items),
             }
         )
 
-    event_cards.sort(key=lambda x: (x["hot_score"], x["occurrence_count"]), reverse=True)
+    event_cards.sort(key=lambda x: (x["total_score"], x["hot_score"], x["occurrence_count"]), reverse=True)
     return event_cards[:max_clusters]
 
 

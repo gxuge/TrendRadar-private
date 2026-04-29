@@ -51,6 +51,9 @@ def render_html_content(
     default_region_order = ["events", "hotlist", "rss", "new_items", "standalone", "ai_analysis"]
     if region_order is None:
         region_order = default_region_order
+    elif "events" not in region_order:
+        # Backward-compatible: old configs may not include events
+        region_order = ["events"] + list(region_order)
 
     html = """
     <!DOCTYPE html>
@@ -1432,6 +1435,11 @@ def render_html_content(
             source_count = event.get("source_count", 0)
             occurrence_count = event.get("occurrence_count", 0)
             hot_score = event.get("hot_score", 0)
+            total_score = event.get("total_score", hot_score)
+            breakdown = event.get("score_breakdown", {}) or {}
+            spread_score = breakdown.get("spread", 0)
+            momentum_score = breakdown.get("momentum", 0)
+            authority_score = breakdown.get("authority", 0)
             sources = event.get("sources", [])
             keywords = event.get("keywords", [])
             related_titles = event.get("related_titles", [])
@@ -1445,11 +1453,15 @@ def render_html_content(
                         <div class="event-card">
                             <div class="event-card-header">
                                 <div class="event-card-title">{title_html}</div>
-                                <div class="event-hot">热度 {hot_score}</div>
+                                <div class="event-hot">总分 {total_score}</div>
                             </div>
                             <div class="event-meta">
                                 <span class="event-badge">来源 {source_count}</span>
-                                <span class="event-badge">提及 {occurrence_count}</span>"""
+                                <span class="event-badge">提及 {occurrence_count}</span>
+                                <span class="event-badge">热度 {hot_score}</span>
+                                <span class="event-badge">扩散 {spread_score}</span>
+                                <span class="event-badge">增速 {momentum_score}</span>
+                                <span class="event-badge">权威 {authority_score}</span>"""
 
             for s in sources[:4]:
                 events_html += f'<span class="event-badge">{html_escape(s)}</span>'
