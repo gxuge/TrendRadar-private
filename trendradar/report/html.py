@@ -497,6 +497,46 @@ def render_html_content(
                 gap: 12px;
             }
 
+            .events-more {
+                margin-top: 12px;
+                border: 1px dashed #d1d5db;
+                border-radius: 10px;
+                background: #fafafa;
+                padding: 8px 10px;
+            }
+
+            .events-more summary {
+                cursor: pointer;
+                color: #374151;
+                font-size: 12px;
+                font-weight: 600;
+                list-style: none;
+                outline: none;
+            }
+
+            .events-more summary::-webkit-details-marker {
+                display: none;
+            }
+
+            .events-more summary::before {
+                content: ">";
+                display: inline-block;
+                margin-right: 6px;
+                font-size: 10px;
+                transition: transform 0.2s ease;
+            }
+
+            .events-more[open] summary::before {
+                transform: rotate(90deg);
+            }
+
+            .events-more-grid {
+                margin-top: 10px;
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
             .event-card {
                 border: 1px solid #e5e7eb;
                 border-radius: 10px;
@@ -1439,15 +1479,12 @@ def render_html_content(
     events_html = ""
     event_clusters = report_data.get("event_clusters", [])
     if event_clusters:
-        events_html += f"""
-                <div class="events-section">
-                    <div class="events-section-header">
-                        <div class="events-section-title">事件卡片</div>
-                        <div class="events-section-count">{len(event_clusters)} 条</div>
-                    </div>
-                    <div class="events-grid">"""
+        top_n = 12
+        top_events = event_clusters[:top_n]
+        overflow_events = event_clusters[top_n:]
 
-        for event in event_clusters:
+        def _render_event_card(event: Dict) -> str:
+            card_html = ""
             title = html_escape(event.get("title", ""))
             url = html_escape(event.get("url", ""))
             source_count = event.get("source_count", 0)
@@ -1470,45 +1507,69 @@ def render_html_content(
             else:
                 title_html = title
 
-            events_html += f"""
+            card_html += f"""
                         <div class="event-card">
                             <div class="event-card-header">
                                 <div class="event-card-title">{title_html}</div>
-                                <div class="event-hot">总分 {total_score}</div>
+                                <div class="event-hot">Score {total_score}</div>
                             </div>
                             <div class="event-meta">
-                                <span class="event-badge">来源 {source_count}</span>
-                                <span class="event-badge">提及 {occurrence_count}</span>
-                                <span class="event-badge">热度 {hot_score}</span>
-                                <span class="event-badge">扩散 {spread_score}</span>
-                                <span class="event-badge">增速 {momentum_score}</span>
-                                <span class="event-badge">权威 {authority_score}</span>"""
+                                <span class="event-badge">Sources {source_count}</span>
+                                <span class="event-badge">Mentions {occurrence_count}</span>
+                                <span class="event-badge">Hot {hot_score}</span>
+                                <span class="event-badge">Spread {spread_score}</span>
+                                <span class="event-badge">Momentum {momentum_score}</span>
+                                <span class="event-badge">Authority {authority_score}</span>"""
 
             for s in sources[:4]:
-                events_html += f'<span class="event-badge">{html_escape(s)}</span>'
+                card_html += f'<span class="event-badge">{html_escape(s)}</span>'
             for k in keywords[:3]:
-                events_html += f'<span class="event-badge">#{html_escape(k)}</span>'
+                card_html += f'<span class="event-badge">#{html_escape(k)}</span>'
 
-            events_html += "</div>"
+            card_html += "</div>"
 
             if brief:
-                events_html += f'<div class="event-brief">摘要：{html_escape(brief)}</div>'
+                card_html += f'<div class="event-brief">Brief: {html_escape(brief)}</div>'
             if why_it_matters:
-                events_html += f'<div class="event-why">为什么重要：{html_escape(why_it_matters)}</div>'
+                card_html += f'<div class="event-why">Why it matters: {html_escape(why_it_matters)}</div>'
             if impact:
-                events_html += f'<div class="event-impact">{html_escape(impact)}</div>'
+                card_html += f'<div class="event-impact">Impact: {html_escape(impact)}</div>'
 
             if related_titles:
-                related_safe = "；".join(html_escape(x) for x in related_titles[:2])
-                events_html += f'<div class="event-related">相关：{related_safe}</div>'
+                related_safe = "; ".join(html_escape(x) for x in related_titles[:2])
+                card_html += f'<div class="event-related">Related: {related_safe}</div>'
 
-            events_html += """
+            card_html += """
                         </div>"""
+            return card_html
+
+        events_html += f"""
+                <div class="events-section">
+                    <div class="events-section-header">
+                        <div class="events-section-title">Event Cards</div>
+                        <div class="events-section-count">{len(event_clusters)} items</div>
+                    </div>
+                    <div class="events-grid">"""
+
+        for event in top_events:
+            events_html += _render_event_card(event)
 
         events_html += """
-                    </div>
-                </div>"""
+                    </div>"""
 
+        if overflow_events:
+            events_html += f"""
+                    <details class="events-more">
+                        <summary>More Events ({len(overflow_events)})</summary>
+                        <div class="events-more-grid">"""
+            for event in overflow_events:
+                events_html += _render_event_card(event)
+            events_html += """
+                        </div>
+                    </details>"""
+
+        events_html += """
+                </div>"""
     stats_html = ""
     tab_bar_html = ""
     if report_data["stats"]:
