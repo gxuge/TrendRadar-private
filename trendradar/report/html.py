@@ -557,6 +557,24 @@ def render_html_content(
                 line-height: 1.45;
             }
 
+            .event-brief,
+            .event-why,
+            .event-impact {
+                margin-top: 8px;
+                color: #374151;
+                font-size: 12px;
+                line-height: 1.5;
+            }
+
+            .event-why {
+                color: #4b5563;
+            }
+
+            .event-impact {
+                color: #1f2937;
+                font-weight: 500;
+            }
+
             .new-section {
                 margin-top: 40px;
                 padding-top: 24px;
@@ -1443,6 +1461,9 @@ def render_html_content(
             sources = event.get("sources", [])
             keywords = event.get("keywords", [])
             related_titles = event.get("related_titles", [])
+            brief = event.get("brief", "")
+            why_it_matters = event.get("why_it_matters", "")
+            impact = event.get("impact", "")
 
             if url:
                 title_html = f'<a href="{url}" target="_blank" class="news-link">{title}</a>'
@@ -1469,6 +1490,13 @@ def render_html_content(
                 events_html += f'<span class="event-badge">#{html_escape(k)}</span>'
 
             events_html += "</div>"
+
+            if brief:
+                events_html += f'<div class="event-brief">摘要：{html_escape(brief)}</div>'
+            if why_it_matters:
+                events_html += f'<div class="event-why">为什么重要：{html_escape(why_it_matters)}</div>'
+            if impact:
+                events_html += f'<div class="event-impact">{html_escape(impact)}</div>'
 
             if related_titles:
                 related_safe = "；".join(html_escape(x) for x in related_titles[:2])

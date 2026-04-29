@@ -74,6 +74,94 @@ def _source_authority_weight(source_name: str) -> float:
     return 0.55
 
 
+def _extract_company_tags(text: str) -> List[str]:
+    mapping = [
+        (r"\bopenai\b|chatgpt|sora", "OpenAI"),
+        (r"\banthropic\b|claude", "Anthropic"),
+        (r"\bgoogle\b|gemini|deepmind", "Google"),
+        (r"\bmicrosoft\b|copilot", "Microsoft"),
+        (r"\bmeta\b|llama", "Meta"),
+        (r"\bxai\b|grok", "xAI"),
+        (r"\bnvidia\b|h100|b200|jensen", "NVIDIA"),
+        (r"\bamd\b|ryzen ai", "AMD"),
+        (r"\bintel\b|gaudi", "Intel"),
+        (r"deepseek|深度求索", "DeepSeek"),
+        (r"通义|qwen|阿里云百炼|万相", "阿里系"),
+        (r"豆包|扣子|coze|火山引擎", "字节系"),
+        (r"元宝|混元|hunyuan", "腾讯系"),
+        (r"文心|ernie", "百度系"),
+        (r"kimi|月之暗面", "月之暗面"),
+        (r"智谱|glm", "智谱"),
+        (r"minimax|海螺", "MiniMax"),
+        (r"讯飞星火|科大讯飞", "讯飞"),
+        (r"宇树|unitree", "宇树"),
+    ]
+    t = text.lower()
+    tags: List[str] = []
+    for pattern, label in mapping:
+        if re.search(pattern, t, re.IGNORECASE):
+            tags.append(label)
+    # preserve order and unique
+    seen = set()
+    unique_tags = []
+    for tag in tags:
+        if tag not in seen:
+            seen.add(tag)
+            unique_tags.append(tag)
+    return unique_tags
+
+
+def _infer_impact_object(text: str) -> str:
+    rules = [
+        (r"gpu|npu|cuda|h100|b200|芯片|算力|云", "算力与云基础设施"),
+        (r"agent|智能体|工作流|mcp|rag|函数调用|工具调用", "企业自动化与生产效率"),
+        (r"视频|文生图|图生视频|多模态|语音|asr|tts|omni|vlm", "多模态内容生产与交互体验"),
+        (r"自动驾驶|无人驾驶|机器人|具身", "机器人与自动驾驶产业链"),
+        (r"融资|并购|ipo|估值|财报|营收|订单", "资本市场与商业化预期"),
+        (r"监管|合规|版权|诉讼|出口管制|政策|法案", "监管合规与国际竞争格局"),
+    ]
+    t = text.lower()
+    for pattern, label in rules:
+        if re.search(pattern, t, re.IGNORECASE):
+            return label
+    return "AI 应用落地与行业竞争"
+
+
+def _build_event_brief(
+    title: str,
+    source_count: int,
+    occurrence_count: int,
+    total_score: float,
+    spread_score: float,
+    momentum_score: float,
+    authority_score: float,
+    keywords: List[str],
+) -> Dict[str, str]:
+    text = f"{title} {' '.join(keywords)}"
+    companies = _extract_company_tags(text)
+    impact_object = _infer_impact_object(text)
+    company_hint = "、".join(companies[:2]) if companies else "多家厂商"
+
+    if momentum_score >= spread_score and momentum_score >= authority_score:
+        why = "增速分最高，说明这条事件正在快速升温，短期关注度提升明显。"
+    elif spread_score >= authority_score:
+        why = "扩散分最高，说明事件跨平台传播广，已形成更强的公共议题性。"
+    else:
+        why = "权威分较高，说明来源质量更稳，信息可信度与参考价值更高。"
+
+    brief = (
+        f"{company_hint}相关动态在 {source_count} 个来源被提及 {occurrence_count} 次，"
+        f"当前事件总分 {total_score}。"
+    )
+    impact = f"主要影响：{impact_object}。"
+
+    return {
+        "brief": brief,
+        "why_it_matters": why,
+        "impact": impact,
+    }
+
+
 def _build_event_clusters(
     processed_stats: List[Dict],
     max_clusters: int = 12,
@@ -187,6 +275,16 @@ def _build_event_clusters(
                 },
                 "total_score": total_score,
                 "is_new": any(x.get("is_new", False) for x in items),
+                **_build_event_brief(
+                    title=rep["title"],
+                    source_count=source_count,
+                    occurrence_count=occurrence_count,
+                    total_score=total_score,
+                    spread_score=spread_component,
+                    momentum_score=momentum_component,
+                    authority_score=authority_component,
+                    keywords=keywords[:3],
+                ),
             }
         )
 
