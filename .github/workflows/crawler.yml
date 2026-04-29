@@ -164,11 +164,11 @@ jobs:
           AI_API_BASE: ${{ secrets.AI_API_BASE }}
           # 远程存储配置
           STORAGE_BACKEND: remote
-          S3_BUCKET_NAME: xuge
-          S3_ACCESS_KEY_ID: 30fd49984de730bf4b19e5ec583d033a
-          S3_SECRET_ACCESS_KEY: c53e9a83b0f9139f12efe5af7f6465dea834d3eb5dac5029527c11b7ddfe4759
-          S3_ENDPOINT_URL: https://838de6c927cbb6dc5aa8476ec542f803.r2.cloudflarestorage.com
-          S3_REGION: auto
+          S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+          S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
+          S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+          S3_ENDPOINT_URL: ${{ secrets.S3_ENDPOINT_URL }}
+          S3_REGION: ${{ secrets.S3_REGION }}
           GITHUB_ACTIONS: true
         run: uv run python -m trendradar
 
