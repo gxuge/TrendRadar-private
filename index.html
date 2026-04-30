@@ -1,747 +1,2114 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>热点新闻分析</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-            margin: 0;
-            padding: 16px;
-            background: #fafafa;
-            color: #333;
-            line-height: 1.5;
-        }
 
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
-        }
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>热点新闻分析</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+                        <style>
+            /* ==========================================================================
+               1. Design Tokens (CSS Variables) - PREMIUM THEME
+               ========================================================================== */
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-        .header {
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-            color: white;
-            padding: 32px 24px;
-            text-align: center;
-            position: relative;
-        }
+            :root {
+                /* Light Mode: Apple Clean & Minimal */
+                --bg-body: #f5f5f7;
+                --bg-card: rgba(255, 255, 255, 0.7);
+                --bg-card-solid: #ffffff;
+                --bg-card-hover: rgba(255, 255, 255, 0.9);
+                
+                --text-main: #1d1d1f;
+                --text-muted: #86868b;
+                --text-light: #a1a1a6;
+                
+                --primary: #0071e3;
+                --primary-hover: #0077ed;
+                --primary-bg: rgba(0, 113, 227, 0.08);
+                
+                --border-color: rgba(0, 0, 0, 0.04);
+                --border-card: rgba(255, 255, 255, 0.5);
+                
+                --danger: #ff3b30;
+                --danger-bg: rgba(255, 59, 48, 0.08);
+                --warning: #ff9500;
+                --warning-bg: rgba(255, 149, 0, 0.08);
+                --success: #34c759;
+                --success-bg: rgba(52, 199, 89, 0.08);
+                
+                --header-bg: rgba(255, 255, 255, 0.7);
+                --header-text: #1d1d1f;
+                
+                --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.04);
+                --shadow-hover: 0 10px 32px rgba(0, 0, 0, 0.08);
+                --glow: none;
+                
+                --glass-blur: blur(20px);
+                
+                --font-base: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+                --font-mono: 'SFMono-Regular', Consolas, monospace;
+            }
 
-        .save-buttons {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            display: flex;
-            gap: 8px;
-        }
+            body.dark-mode {
+                /* Dark Mode: Vercel/Linear Tech & Glow */
+                --bg-body: #000000;
+                --bg-card: rgba(17, 17, 17, 0.7);
+                --bg-card-solid: #111111;
+                --bg-card-hover: rgba(26, 26, 26, 0.9);
+                
+                --text-main: #ededed;
+                --text-muted: #a1a1aa;
+                --text-light: #71717a;
+                
+                --primary: #3b82f6;
+                --primary-hover: #60a5fa;
+                --primary-bg: rgba(59, 130, 246, 0.15);
+                
+                --border-color: rgba(255, 255, 255, 0.08);
+                --border-card: rgba(255, 255, 255, 0.05);
+                
+                --danger: #ef4444;
+                --danger-bg: rgba(239, 68, 68, 0.15);
+                --warning: #f59e0b;
+                --warning-bg: rgba(245, 158, 11, 0.15);
+                --success: #10b981;
+                --success-bg: rgba(16, 185, 129, 0.15);
+                
+                --header-bg: rgba(10, 10, 10, 0.7);
+                --header-text: #ffffff;
+                
+                --shadow-card: 0 0 0 1px rgba(255,255,255,0.05), 0 4px 24px rgba(0, 0, 0, 0.5);
+                --shadow-hover: 0 0 0 1px rgba(255,255,255,0.1), 0 10px 40px rgba(0, 0, 0, 0.7);
+                --glow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+            }
 
-        .save-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            backdrop-filter: blur(10px);
-            white-space: nowrap;
-        }
+            /* ==========================================================================
+               2. Animations
+               ========================================================================== */
+            @keyframes fadeInUp {
+                from { opacity: 0; transform: translateY(16px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            
+            @keyframes pulseGlow {
+                0% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); }
+                50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.4); }
+                100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); }
+            }
 
-        .save-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            border-color: rgba(255, 255, 255, 0.5);
-            transform: translateY(-1px);
-        }
+            .animate-fade-in {
+                animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                opacity: 0;
+            }
 
-        .save-btn:active {
-            transform: translateY(0);
-        }
+            /* Create delays for children */
+            .stagger-1 { animation-delay: 0.1s; }
+            .stagger-2 { animation-delay: 0.2s; }
+            .stagger-3 { animation-delay: 0.3s; }
+            .stagger-4 { animation-delay: 0.4s; }
 
-        .save-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .header-title {
-            font-size: 22px;
-            font-weight: 700;
-            margin: 0 0 20px 0;
-        }
-
-        .header-info {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            font-size: 14px;
-            opacity: 0.95;
-        }
-
-        .info-item {
-            text-align: center;
-        }
-
-        .info-label {
-            display: block;
-            font-size: 12px;
-            opacity: 0.8;
-            margin-bottom: 4px;
-        }
-
-        .info-value {
-            font-weight: 600;
-            font-size: 16px;
-        }
-
-        .content {
-            padding: 24px;
-        }
-
-        .word-group {
-            margin-bottom: 40px;
-        }
-
-        .word-group:first-child {
-            margin-top: 0;
-        }
-
-        .word-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .word-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .word-name {
-            font-size: 17px;
-            font-weight: 600;
-            color: #1a1a1a;
-        }
-
-        .word-count {
-            color: #666;
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .word-count.hot {
-            color: #dc2626;
-            font-weight: 600;
-        }
-
-        .word-count.warm {
-            color: #ea580c;
-            font-weight: 600;
-        }
-
-        .word-index {
-            color: #999;
-            font-size: 12px;
-        }
-
-        .news-item {
-            margin-bottom: 20px;
-            padding: 16px 0;
-            border-bottom: 1px solid #f5f5f5;
-            position: relative;
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .news-item:last-child {
-            border-bottom: none;
-        }
-
-        .news-number {
-            color: #999;
-            font-size: 13px;
-            font-weight: 600;
-            min-width: 20px;
-            text-align: center;
-            flex-shrink: 0;
-            background: #f8f9fa;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            align-self: flex-start;
-            margin-top: 8px;
-        }
-
-        .news-content {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .news-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
-            flex-wrap: wrap;
-        }
-
-        .source-name {
-            color: #666;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .rank-num {
-            color: #fff;
-            background: #6b7280;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 10px;
-            min-width: 18px;
-            text-align: center;
-        }
-
-        .rank-num.top {
-            background: #dc2626;
-        }
-
-        .rank-num.high {
-            background: #ea580c;
-        }
-
-        .time-info {
-            color: #999;
-            font-size: 11px;
-        }
-
-        .count-info {
-            color: #059669;
-            font-size: 11px;
-            font-weight: 500;
-        }
-
-        .news-title {
-            font-size: 15px;
-            line-height: 1.4;
-            color: #1a1a1a;
-            margin: 0;
-        }
-
-        .news-link {
-            color: #2563eb;
-            text-decoration: none;
-        }
-
-        .news-link:hover {
-            text-decoration: underline;
-        }
-
-        .news-link:visited {
-            color: #7c3aed;
-        }
-
-        .footer {
-            margin-top: 32px;
-            padding: 20px 24px;
-            background: #f8f9fa;
-            border-top: 1px solid #e5e7eb;
-            text-align: center;
-        }
-
-        .footer-content {
-            font-size: 13px;
-            color: #6b7280;
-            line-height: 1.6;
-        }
-
-        .footer-link {
-            color: #4f46e5;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.2s ease;
-        }
-
-        .footer-link:hover {
-            color: #7c3aed;
-            text-decoration: underline;
-        }
-
-        .project-name {
-            font-weight: 600;
-            color: #374151;
-        }
-
-        @media (max-width: 480px) {
+            /* ==========================================================================
+               3. Base & Layout
+               ========================================================================== */
+            * { box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
             body {
-                padding: 12px;
+                font-family: var(--font-base);
+                margin: 0; padding: 24px 16px;
+                background: var(--bg-body); color: var(--text-main);
+                line-height: 1.6; font-size: 14px;
+                transition: background-color 0.4s ease, color 0.4s ease;
             }
+            a { color: var(--primary); text-decoration: none; transition: color 0.2s; }
+            a:hover { color: var(--primary-hover); }
+
+            .container { max-width: 760px; margin: 0 auto; transition: max-width 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+            body.wide-mode .container { max-width: 1280px; }
+
+            /* ==========================================================================
+               4. Header (Glassmorphism & Glow)
+               ========================================================================== */
             .header {
-                padding: 24px 20px;
+                background: var(--header-bg);
+                backdrop-filter: var(--glass-blur);
+                -webkit-backdrop-filter: var(--glass-blur);
+                border: 1px solid var(--border-card);
+                border-radius: 20px;
+                padding: 40px 32px;
+                text-align: center; position: relative; overflow: hidden;
+                box-shadow: var(--shadow-card);
+                margin-bottom: 32px;
+                box-shadow: var(--glow), var(--shadow-card);
+                transition: all 0.4s ease;
             }
-            .content {
-                padding: 20px;
+            
+            /* Add subtle gradient orbs in dark mode for that linear glow */
+            body.dark-mode .header::before {
+                content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+                background: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15), transparent 50%);
+                pointer-events: none; z-index: 0;
             }
-            .footer {
-                padding: 16px 20px;
+
+            .header-watermark {
+                position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                font-size: clamp(60px, 10vw, 120px); font-weight: 800; letter-spacing: -0.02em;
+                color: rgba(150, 150, 150, 0.03); pointer-events: none; z-index: 1; user-select: none;
             }
+            body.dark-mode .header-watermark { color: rgba(255, 255, 255, 0.02); }
+
+            .header-title {
+                font-size: 28px; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 32px 0;
+                position: relative; z-index: 2; color: var(--header-text);
+            }
+            
             .header-info {
-                grid-template-columns: 1fr;
-                gap: 12px;
+                position: relative; z-index: 2; display: flex; flex-wrap: wrap; justify-content: center; gap: 40px;
             }
-            .news-header {
-                gap: 6px;
+            .info-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+            .info-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+            .info-value { font-weight: 700; font-size: 24px; color: var(--header-text); font-family: var(--font-mono); }
+
+            /* ==========================================================================
+               5. Universal Premium Card System
+               ========================================================================== */
+            .card {
+                background: var(--bg-card);
+                backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+                border-radius: 16px;
+                border: 1px solid var(--border-card);
+                margin-bottom: 24px;
+                box-shadow: var(--shadow-card), var(--glow);
+                transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                overflow: hidden;
             }
-            .news-item {
-                gap: 8px;
+            .card:hover {
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-hover), var(--glow);
+                background: var(--bg-card-hover);
             }
-            .news-number {
-                width: 20px;
-                height: 20px;
-                font-size: 12px;
+            
+            .card-header {
+                padding: 20px 24px; border-bottom: 1px solid var(--border-color);
+                display: flex; align-items: center; justify-content: space-between;
+                background: transparent;
             }
-            .save-buttons {
-                position: static;
-                margin-bottom: 16px;
+            .card-title { font-size: 18px; font-weight: 700; color: var(--text-main); margin: 0; letter-spacing: -0.01em;}
+            .card-meta { font-size: 13px; color: var(--text-muted); font-weight: 500; display: flex; align-items: center; gap: 6px;}
+            .card-body { padding: 0; }
+            
+            body.wide-mode .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+            body.wide-mode .grid-2col .card { margin-bottom: 0; }
+
+            /* List Items */
+            .list-item {
+                display: flex; gap: 16px; padding: 16px 24px;
+                border-bottom: 1px solid var(--border-color); transition: background 0.2s;
+                align-items: flex-start;
+            }
+            .list-item:last-child { border-bottom: none; }
+            .list-item:hover { background: rgba(0,0,0,0.02); }
+            body.dark-mode .list-item:hover { background: rgba(255,255,255,0.02); }
+
+            .item-number {
+                width: 28px; height: 28px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+                background: var(--border-color); color: var(--text-muted); border-radius: 8px;
+                font-size: 12px; font-weight: 700; font-family: var(--font-mono);
+                cursor: pointer; position: relative; overflow: hidden;
+                transition: all 0.2s;
+            }
+            .list-item:hover .item-number { background: var(--primary-bg); color: var(--primary); transform: scale(1.05); }
+            .item-number.copied { background: var(--success) !important; color: white !important; transform: scale(1.1); }
+            
+            .item-number .num-text { transition: opacity 0.2s, transform 0.2s; }
+            .item-number .copy-icon { position: absolute; opacity: 0; transition: opacity 0.2s, transform 0.2s; transform: scale(0.5); }
+            .list-item:hover .item-number .num-text { opacity: 0; transform: scale(1.5); }
+            .list-item:hover .item-number .copy-icon { opacity: 1; transform: scale(1); }
+            .item-number.copied .num-text { opacity: 0 !important; }
+            .item-number.copied .copy-icon { opacity: 1 !important; transform: scale(1) !important; }
+
+            .item-content { flex: 1; min-width: 0; padding-top: 2px;}
+            .item-header { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; align-items: center;}
+            .item-title { font-size: 15px; line-height: 1.5; margin: 0; color: var(--text-main); font-weight: 500;}
+
+            /* Modern Badges / Pills */
+            .badge { 
+                padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; 
+                white-space: nowrap; letter-spacing: 0.02em; display: inline-flex; align-items: center;
+            }
+            .badge-neutral { background: var(--border-color); color: var(--text-muted); }
+            .badge-primary { background: var(--primary-bg); color: var(--primary); }
+            .badge-danger { background: var(--danger-bg); color: var(--danger); }
+            .badge-warning { background: var(--warning-bg); color: var(--warning); }
+            
+            .text-sm-muted { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+            .text-sm-success { font-size: 12px; color: var(--success); font-weight: 600; }
+
+            /* ==========================================================================
+               6. Section Specifics
+               ========================================================================== */
+            /* Event Cards */
+            .event-card { padding: 24px; border-bottom: 1px solid var(--border-color); }
+            .event-card:last-child { border-bottom: none; }
+            .event-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 12px; }
+            .event-title { font-size: 16px; font-weight: 700; margin: 0; color: var(--text-main); line-height: 1.5; letter-spacing: -0.01em;}
+            .event-meta-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+            .event-desc { margin-top: 12px; font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+            .event-desc strong { color: var(--text-main); font-weight: 600; }
+
+            /* AI Section */
+            .ai-section { background: linear-gradient(135deg, var(--primary-bg) 0%, transparent 100%); }
+            .ai-block { background: var(--bg-card-solid); margin-bottom: 16px; padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+            .ai-block:last-child { margin-bottom: 0; }
+            .ai-block-title { color: var(--primary); font-weight: 700; margin-bottom: 12px; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+            .ai-block-content { font-size: 14px; color: var(--text-main); white-space: pre-wrap; line-height: 1.7; }
+
+            /* Tabs - Modern Pill Style */
+            .tab-bar {
+                display: none; overflow-x: auto; white-space: nowrap;
+                padding: 4px; gap: 8px; margin-bottom: 24px;
+                -webkit-overflow-scrolling: touch; scrollbar-width: none;
+                background: var(--bg-card); border-radius: 100px;
+                border: 1px solid var(--border-card);
+                box-shadow: var(--shadow-card);
+                backdrop-filter: blur(10px);
+            }
+            .tab-bar::-webkit-scrollbar { display: none; }
+            body.wide-mode .tab-bar { display: inline-flex; max-width: 100%; }
+            body.wide-mode .tab-bar.tab-hidden { display: none; }
+            
+            .tab-btn {
+                padding: 8px 16px; background: transparent; color: var(--text-muted);
+                border: none; border-radius: 100px; font-size: 13px; font-weight: 600;
+                cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+                display: inline-flex; align-items: center; gap: 8px;
+            }
+            .tab-btn:hover { color: var(--text-main); background: var(--border-color); }
+            .tab-btn.active { background: var(--text-main); color: var(--bg-body); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+            body.dark-mode .tab-btn.active { box-shadow: 0 2px 12px rgba(255,255,255,0.1); }
+            .tab-count { background: var(--border-color); padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+            .tab-btn.active .tab-count { background: var(--bg-body); color: var(--text-main); }
+
+            /* Glassmorphic Action Buttons */
+            .save-buttons { position: absolute; top: 24px; right: 24px; display: flex; gap: 12px; z-index: 10; }
+            .btn-action {
+                background: rgba(150, 150, 150, 0.1); border: 1px solid rgba(150, 150, 150, 0.2); color: var(--header-text);
+                padding: 8px 16px; border-radius: 12px; cursor: pointer; font-size: 13px; font-weight: 600;
+                backdrop-filter: blur(12px); transition: all 0.3s; display: flex; align-items: center; justify-content: center;
+                min-height: 36px;
+            }
+            .btn-action:hover { background: rgba(150, 150, 150, 0.2); transform: translateY(-1px); }
+            
+            .save-btn-group { display: flex; position: relative; }
+            .save-btn-group .btn-action:first-child { border-radius: 12px 0 0 12px; border-right: none; }
+            .save-btn-group .btn-action:last-child { border-radius: 0 12px 12px 0; padding: 8px 10px; }
+            
+            .dropdown-menu {
+                position: absolute; top: 100%; right: 0; margin-top: 8px;
+                background: var(--bg-card-solid); border: 1px solid var(--border-color); border-radius: 12px;
+                box-shadow: var(--shadow-hover); padding: 6px; min-width: 140px;
+                opacity: 0; visibility: hidden; transform: translateY(-8px); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+            .save-btn-group:hover .dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+            .dropdown-item {
+                display: flex; align-items: center; width: 100%; padding: 10px 14px;
+                background: none; border: none; color: var(--text-main); font-size: 13px; font-weight: 500;
+                cursor: pointer; border-radius: 8px; text-align: left; transition: background 0.2s;
+            }
+            .dropdown-item:hover { background: var(--primary-bg); color: var(--primary); }
+            .dropdown-item svg { width: 16px; height: 16px; margin-right: 10px; stroke: currentColor; }
+
+            /* Modern Search Bar */
+            .search-bar { margin-bottom: 24px; display: none; }
+            .search-input {
+                width: 100%; padding: 16px 20px; background: var(--bg-card); border: 1px solid var(--border-color);
+                border-radius: 16px; color: var(--text-main); font-size: 15px;
+                outline: none; transition: all 0.3s; box-shadow: var(--shadow-card);
+                backdrop-filter: blur(10px);
+            }
+            .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-bg); transform: translateY(-1px); }
+
+            /* Reading Progress */
+            .reading-progress {
+                position: fixed; top: 0; left: 0; width: 0; height: 4px;
+                background: linear-gradient(90deg, var(--primary), #8b5cf6); z-index: 9999;
+                transition: width 0.1s linear; border-radius: 0 2px 2px 0;
+            }
+            
+            /* Error */
+            .error-section { background: var(--danger-bg); border: 1px solid rgba(239, 68, 68, 0.2); padding: 20px; border-radius: 16px; margin-bottom: 24px; }
+            .error-title { color: var(--danger); font-size: 14px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;}
+            .error-item { color: var(--danger); font-size: 13px; font-family: var(--font-mono); margin-left: 24px; padding: 4px 0;}
+            
+            /* Footer */
+            .footer { text-align: center; padding: 40px 0; color: var(--text-muted); font-size: 13px; font-weight: 500;}
+
+            /* Legacy hooks for JS (DO NOT RENAME) */
+            .events-more summary { cursor: pointer; font-size: 12px; color: var(--text-muted); font-weight: 600; outline: none; padding: 12px 24px; display: block; background: transparent; border-top: 1px solid var(--border-color); text-align: center; transition: background 0.2s; }
+            .events-more summary:hover { background: rgba(0,0,0,0.02); }
+            body.dark-mode .events-more summary:hover { background: rgba(255,255,255,0.02); }
+            .events-more summary::marker, .events-more summary::-webkit-details-marker { display: none; }
+            .word-group.collapsed .card-body { display: none; }
+            .word-header.collapsible { cursor: pointer; transition: background 0.2s; }
+            .word-header.collapsible:hover { background: rgba(0,0,0,0.02); }
+            body.dark-mode .word-header.collapsible:hover { background: rgba(255,255,255,0.02); }
+            .collapse-icon { font-size: 10px; margin-right: 8px; transition: transform 0.3s; display: inline-block; }
+            .word-group.collapsed .collapse-icon { transform: rotate(-90deg); }
+
+            /* FAB Bar */
+            .fab-bar {
+                position: fixed; bottom: 32px; right: 32px; display: flex; flex-direction: column; gap: 12px;
+                z-index: 100; opacity: 0; transform: translateY(20px); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none;
+            }
+            .fab-bar.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+            .fab-btn {
+                width: 48px; height: 48px; border-radius: 24px; background: var(--bg-card-solid); color: var(--text-main);
+                border: 1px solid var(--border-color); cursor: pointer; font-size: 20px; box-shadow: var(--shadow-hover);
+                display: flex; align-items: center; justify-content: center; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+            .fab-btn:hover { color: var(--primary); transform: translateY(-4px); box-shadow: 0 14px 40px rgba(0,0,0,0.15); }
+
+
+            /* New Partitions and App Shell Layout */
+            body { padding: 0; }
+            .container { padding: 0 16px; margin-top: 24px; }
+            .main-nav {
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                background: var(--bg-card);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-bottom: 1px solid var(--border-color);
+                padding: 12px 24px;
                 display: flex;
-                gap: 8px;
-                justify-content: center;
-                flex-direction: column;
-                width: 100%;
+                gap: 16px;
+                margin-bottom: 24px;
+                border-radius: 12px;
+                box-shadow: var(--shadow-card);
             }
-            .save-btn {
-                width: 100%;
+            .main-nav-item {
+                padding: 8px 16px;
+                border-radius: 20px;
+                font-weight: 600;
+                font-size: 14px;
+                cursor: pointer;
+                color: var(--text-muted);
+                transition: all 0.3s;
+                background: transparent;
+                border: none;
+                white-space: nowrap;
             }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <div class="save-buttons">
-                <button class="save-btn" onclick="saveAsImage()">保存为图片</button>
-                <button class="save-btn" onclick="saveAsMultipleImages()">分段保存</button>
-            </div>
-            <div class="header-title">热点新闻分析</div>
-            <div class="header-info">
-                <div class="info-item">
-                    <span class="info-label">报告类型</span>
-                    <span class="info-value">当日汇总</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">新闻总数</span>
-                    <span class="info-value">387 条</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">热点新闻</span>
-                    <span class="info-value">5 条</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">生成时间</span>
-                    <span class="info-value">06-16 07:17</span>
-                </div>
-            </div>
-        </div>
+            .main-nav-item.active { background: var(--primary); color: white; }
+            .main-nav-item:hover:not(.active) { background: var(--primary-bg); color: var(--primary); }
 
-        <div class="content">
-            <div class="word-group">
-                <div class="word-header">
-                    <div class="word-info">
-                        <div class="word-name">ai 人工智能</div>
-                        <div class="word-count hot">3 条</div>
-                    </div>
-                    <div class="word-index">1/4</div>
-                </div>
-
-                <div class="news-item">
-                    <div class="news-number">1</div>
-                    <div class="news-content">
-                        <div class="news-header">
-                            <span class="source-name">财联社热门</span>
-                            <span class="rank-num high">7-8</span>
-                            <span class="time-info">00:23~07:17</span>
-                            <span class="count-info">15次</span>
-                        </div>
-                        <div class="news-title">
-                            <a href="https://www.cls.cn/detail/2057563" target="_blank" class="news-link">上市首日暴涨140% 军用无人机公司登陆纽交所 AI打造产品核心竞争力</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="news-item">
-                    <div class="news-number">2</div>
-                    <div class="news-content">
-                        <div class="news-header">
-                            <span class="source-name">tieba</span>
-                            <span class="rank-num">18-19</span>
-                            <span class="time-info">00:23~07:17</span>
-                            <span class="count-info">15次</span>
-                        </div>
-                        <div class="news-title">
-                            <a href="https://tieba.baidu.com/hottopic/browse/hottopic?topic_id=28342819&topic_name=%E4%BC%8A%E6%9C%97%E7%96%91%E7%94%A8AI%E4%BC%AA%E9%80%A0%E4%BB%A5%E5%86%9BF35%E6%AE%8B%E9%AA%B8%E5%9B%BE" target="_blank" class="news-link">伊朗疑用AI伪造以军F35残骸图</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="news-item">
-                    <div class="news-number">3</div>
-                    <div class="news-content">
-                        <div class="news-header">
-                            <span class="source-name">zhihu</span>
-                            <span class="rank-num top">5-13</span>
-                            <span class="time-info">00:23~07:17</span>
-                            <span class="count-info">15次</span>
-                        </div>
-                        <div class="news-title">
-                            <a href="https://www.zhihu.com/question/596907281" target="_blank" class="news-link">罗杰·彭罗斯说无论意识是什么，都绝对不是一种计算。意思是：任何 AI 都不可能产生意识？</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="word-group">
-                <div class="word-header">
-                    <div class="word-info">
-                        <div class="word-name">DeepSeek 梁文锋</div>
-                        <div class="word-count">1 条</div>
-                    </div>
-                    <div class="word-index">2/4</div>
-                </div>
-
-                <div class="news-item">
-                    <div class="news-number">1</div>
-                    <div class="news-content">
-                        <div class="news-header">
-                            <span class="source-name">华尔街见闻</span>
-                            <span class="rank-num high">8-9</span>
-                            <span class="time-info">00:23~07:17</span>
-                            <span class="count-info">15次</span>
-                        </div>
-                        <div class="news-title">
-                            <a href="https://wallstreetcn.com/articles/3749141" target="_blank" class="news-link">恒生生科指数1月以来涨超60%，中国创新药的"DeepSeek时刻"超过了AI</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="word-group">
-                <div class="word-header">
-                    <div class="word-info">
-                        <div class="word-name">哪吒 饺子</div>
-                        <div class="word-count">1 条</div>
-                    </div>
-                    <div class="word-index">3/4</div>
-                </div>
-
-                <div class="news-item">
-                    <div class="news-number">1</div>
-                    <div class="news-content">
-                        <div class="news-header">
-                            <span class="source-name">百度热搜</span>
-                            <span class="rank-num">24-30</span>
-                            <span class="time-info">00:57~06:55</span>
-                            <span class="count-info">7次</span>
-                        </div>
-                        <div class="news-title">
-                            <a href="https://www.baidu.com/s?wd=%E3%80%8A%E5%93%AA%E5%90%922%E3%80%8B%E7%89%87%E6%96%B9%E6%88%96%E5%88%86%E8%B4%A652%E4%BA%BF%E5%85%83" target="_blank" class="news-link">《哪吒2》片方或分账52亿元</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="word-group">
-                <div class="word-header">
-                    <div class="word-info">
-                        <div class="word-name">米哈游 原神 星穹铁道</div>
-                        <div class="word-count">1 条</div>
-                    </div>
-                    <div class="word-index">4/4</div>
-                </div>
-
-                <div class="news-item">
-                    <div class="news-number">1</div>
-                    <div class="news-content">
-                        <div class="news-header">
-                            <span class="source-name">zhihu</span>
-                            <span class="rank-num top">5</span>
-                            <span class="time-info">06:55~07:17</span>
-                            <span class="count-info">2次</span>
-                        </div>
-                        <div class="news-title">
-                            <a href="https://www.zhihu.com/question/1905395386765537540" target="_blank" class="news-link">目前原神所有自机角色谁最有可能出新形态?</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="footer">
-            <div class="footer-content">
-                由 <span class="project-name">TrendRadar</span> 生成 · 
-                <a href="https://github.com/sansan0/TrendRadar" target="_blank" class="footer-link">
-                    GitHub 开源项目
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        async function saveAsImage() {
-            const button = event.target;
-            const originalText = button.textContent;
+            body[data-partition] .partition { display: none; }
+            body[data-partition="overview"] .partition-overview,
+            body[data-partition="overview"] .partition-hotlist,
+            body[data-partition="overview"] .partition-rss,
+            body[data-partition="overview"] .partition-standalone { display: block; }
             
-            try {
-                button.textContent = '生成中...';
-                button.disabled = true;
-                window.scrollTo(0, 0);
-                
-                await new Promise(resolve => setTimeout(resolve, 200));
-                
-                const buttons = document.querySelector('.save-buttons');
-                buttons.style.visibility = 'hidden';
-                
-                await new Promise(resolve => setTimeout(resolve, 100));
-                
-                const container = document.querySelector('.container');
-                
-                const canvas = await html2canvas(container, {
-                    backgroundColor: '#ffffff',
-                    scale: 1.5,
-                    useCORS: true,
-                    allowTaint: false,
-                    imageTimeout: 10000,
-                    removeContainer: false,
-                    foreignObjectRendering: false,
-                    logging: false,
-                    width: container.offsetWidth,
-                    height: container.offsetHeight,
-                    x: 0,
-                    y: 0,
-                    scrollX: 0,
-                    scrollY: 0,
-                    windowWidth: window.innerWidth,
-                    windowHeight: window.innerHeight
-                });
-                
-                buttons.style.visibility = 'visible';
-                
-                const link = document.createElement('a');
-                const now = new Date();
-                const filename = `TrendRadar_热点新闻分析_${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}.png`;
-                
-                link.download = filename;
-                link.href = canvas.toDataURL('image/png', 1.0);
-                
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                button.textContent = '保存成功!';
-                setTimeout(() => {
-                    button.textContent = originalText;
-                    button.disabled = false;
-                }, 2000);
-                
-            } catch (error) {
-                const buttons = document.querySelector('.save-buttons');
-                buttons.style.visibility = 'visible';
-                button.textContent = '保存失败';
-                setTimeout(() => {
-                    button.textContent = originalText;
-                    button.disabled = false;
-                }, 2000);
+            body[data-partition="overview"] .partition-hotlist .card:nth-of-type(n+4),
+            body[data-partition="overview"] .partition-rss .card:nth-of-type(n+4),
+            body[data-partition="overview"] .partition-standalone .card:nth-of-type(n+4) { display: none !important; }
+            body[data-partition="overview"] .tab-bar, 
+            body[data-partition="overview"] .view-more-btn { display: none !important; }
+
+            body[data-partition="hotlist"] .partition-hotlist { display: block; }
+            body[data-partition="rss"] .partition-rss { display: block; }
+            body[data-partition="standalone"] .partition-standalone { display: block; }
+            body[data-partition="ai_analysis"] .partition-ai_analysis { display: block; }
+
+            /* Tab Chip Override */
+            .tab-bar {
+                display: flex !important; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; padding: 0;
+                background: transparent; border: none; box-shadow: none; white-space: normal;
+                overflow: visible !important;
             }
-        }
-        
-        async function saveAsMultipleImages() {
-            const button = event.target;
-            const originalText = button.textContent;
-            const container = document.querySelector('.container');
-            const scale = 1.5;
-            const maxHeight = 5000 / scale;
+            .tab-bar::-webkit-scrollbar { display: none; }
+            .tab-btn {
+                max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+                padding: 6px 12px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;
+                background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px;
+            }
+            .hidden-chip:not(.revealed) { display: none !important; }
+            .tab-expand-btn { background: var(--border-color); color: var(--text-main); font-weight: 600; cursor: pointer; }
+
+            /* Card Hierarchy */
+            .list-item { gap: 12px; padding: 12px 20px; border-bottom: 1px solid rgba(0,0,0,0.03); }
+            body.dark-mode .list-item { border-bottom: 1px solid rgba(255,255,255,0.03); }
+            .news-title, .rss-title {
+                display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+                font-size: 15px; font-weight: 600; color: var(--text-main); line-height: 1.5; margin-top: 4px;
+            }
+            .text-sm-muted { font-size: 12px; color: var(--text-light); }
+            .badge { padding: 2px 8px; font-size: 10px; }
             
-            try {
-                button.textContent = '分析中...';
-                button.disabled = true;
-                
-                const wordGroups = Array.from(container.querySelectorAll('.word-group'));
-                const header = container.querySelector('.header');
-                const footer = container.querySelector('.footer');
-                
-                const containerRect = container.getBoundingClientRect();
-                const elements = [];
-                
-                elements.push({
-                    type: 'header',
-                    element: header,
-                    top: 0,
-                    bottom: header.offsetHeight,
-                    height: header.offsetHeight
-                });
-                
-                wordGroups.forEach(group => {
-                    const groupRect = group.getBoundingClientRect();
-                    const wordHeader = group.querySelector('.word-header');
-                    if (wordHeader) {
-                        const headerRect = wordHeader.getBoundingClientRect();
-                        elements.push({
-                            type: 'word-header',
-                            top: groupRect.top - containerRect.top,
-                            bottom: headerRect.bottom - containerRect.top,
-                            height: headerRect.height
+            /* View More */
+            .view-more-btn {
+                width: 100%; padding: 12px; text-align: center; background: transparent;
+                border: none; color: var(--primary); font-size: 13px; font-weight: 600; cursor: pointer;
+                border-top: 1px solid rgba(0,0,0,0.03);
+            }
+            body.dark-mode .view-more-btn { border-top: 1px solid rgba(255,255,255,0.03); }
+            .view-more-btn:hover { background: var(--primary-bg); }
+
+            /* Responsive */
+            @media (max-width: 1024px) {
+                body.wide-mode .grid-2col, .grid-2col { grid-template-columns: 1fr !important; }
+                .main-nav { overflow-x: auto; white-space: nowrap; padding: 12px 16px; border-radius: 0; margin: 0 -16px 16px -16px; }
+                .tab-btn { max-width: none; }
+                .btn-action { min-height: 40px; padding: 8px 20px; }
+                .main-nav-item { padding: 10px 20px; font-size: 15px; }
+            }
+            @media (max-width: 640px) {
+                body { padding: 0; background: var(--bg-body); }
+                .container { border-radius: 0; }
+                .header { border-radius: 0; padding: 40px 24px; margin-bottom: 16px; border-left: none; border-right: none;}
+                .card { border-radius: 12px; margin: 0 12px 16px 12px; }
+                .info-value { font-size: 20px; }
+                .save-buttons { position: static; justify-content: center; margin-bottom: 24px; width: 100%; display: flex; }
+                .save-btn-group { flex: 1; }
+                .save-btn-group .btn-action:first-child { width: 100%; }
+                .tab-bar { padding: 4px; margin: 0 12px 16px 12px; display: flex; overflow-x: auto; max-width: calc(100% - 24px);}
+            }
+        </style>
+    </head>
+    <body>
+        <div class="reading-progress"></div>
+        <div class="container">
+            <div class="header">
+                <div class="header-watermark">TrendRadar</div>
+                <div class="save-buttons">
+                    <button class="toggle-wide-btn" onclick="toggleWideMode()" title="切换宽屏/窄屏">⛶</button>
+                    <button class="toggle-dark-btn" onclick="toggleDarkMode()" title="切换暗色/亮色">☽</button>
+                    <div class="save-btn-group">
+                        <button class="save-btn" onclick="saveAsImage()">导出</button>
+                        <button class="save-dropdown-trigger">▾</button>
+                        <div class="save-dropdown-menu">
+                            <button class="save-dropdown-item" onclick="saveAsImage()"><svg class="dropdown-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><circle cx="8" cy="7.5" r="2.5"/><path d="M12 4h.01"/></svg>整页截图</button>
+                            <button class="save-dropdown-item" onclick="saveAsMultipleImages()"><svg class="dropdown-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="10" height="10" rx="1.5"/><path d="M5 4V2.5A1.5 1.5 0 016.5 1h7A1.5 1.5 0 0115 2.5v7a1.5 1.5 0 01-1.5 1.5H12"/></svg>分段截图</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-title">热点新闻分析</div>
+                <div class="header-info">
+                    <div class="info-item">
+                        <span class="info-label">报告类型</span>
+                        <span class="info-value">当前榜单</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">新闻总数</span>
+                        <span class="info-value">255 条</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">热点新闻</span>
+                        <span class="info-value">11 条</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">生成时间</span>
+                        <span class="info-value">04-30 19:02</span>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="main-nav">
+                <button class="main-nav-item active" data-partition="overview">总览</button>
+                <button class="main-nav-item" data-partition="hotlist">热榜</button>
+                <button class="main-nav-item" data-partition="rss">RSS订阅</button>
+                <button class="main-nav-item" data-partition="standalone">独立展示区</button>
+                <button class="main-nav-item" data-partition="ai_analysis">AI分析</button>
+            </div>
+            <div class="partitions-container">
+                <div class="search-bar">
+                    <input type="text" class="search-input" placeholder="搜索新闻标题..." oninput="handleSearch(this.value)">
+                </div><div class="partition partition-overview">
+                <div class="events-section animate-fade-in stagger-2">
+                    <div class="events-section-header">
+                        <div class="events-section-title">Event Cards</div>
+                        <div class="events-section-count">11 items</div>
+                    </div>
+                    <div class="events-grid grid-2col">
+                        <div class="event-card card">
+                            <div class="event-card-header">
+                                <h3 class="event-title"><a href="https://wallstreetcn.com/articles/3771278" target="_blank" class="news-link">算力需求驱动，寒武纪Q1营收同比增160%，净利飙升185%，章建平退出十大股东｜财报见闻</a></h3>
+                                <div class="badge badge-danger">Score 25.0</div>
+                            </div>
+                            <div class="event-meta-group">
+                                <span class="badge badge-neutral">Sources 1</span>
+                                <span class="badge badge-neutral">Mentions 1</span>
+                                <span class="badge badge-neutral">Hot 15</span>
+                                <span class="badge badge-neutral">Spread 4.5</span>
+                                <span class="badge badge-neutral">Momentum 3.6</span>
+                                <span class="badge badge-neutral">Authority 9.0</span><span class="badge badge-neutral">华尔街见闻</span><span class="badge badge-neutral">#AI专题</span></div><div class="event-desc"><strong>Brief:</strong> 多家厂商相关动态在 1 个来源被提及 1 次，当前事件总分 25.0。</div><div class="event-desc"><strong>Why it matters:</strong> 权威分较高，说明来源质量更稳，信息可信度与参考价值更高。</div><div class="event-desc"><strong>Impact:</strong> 主要影响：算力与云基础设施。</div>
+                        </div>
+                        <div class="event-card card">
+                            <div class="event-card-header">
+                                <h3 class="event-title"><a href="https://www.cls.cn/detail/2360653" target="_blank" class="news-link">美股科技“四巨头”同日放榜 “AI烧钱”大战愈演愈烈</a></h3>
+                                <div class="badge badge-danger">Score 24.4</div>
+                            </div>
+                            <div class="event-meta-group">
+                                <span class="badge badge-neutral">Sources 1</span>
+                                <span class="badge badge-neutral">Mentions 1</span>
+                                <span class="badge badge-neutral">Hot 14</span>
+                                <span class="badge badge-neutral">Spread 4.5</span>
+                                <span class="badge badge-neutral">Momentum 3.6</span>
+                                <span class="badge badge-neutral">Authority 9.0</span><span class="badge badge-neutral">财联社热门</span><span class="badge badge-neutral">#AI专题</span></div><div class="event-desc"><strong>Brief:</strong> 多家厂商相关动态在 1 个来源被提及 1 次，当前事件总分 24.4。</div><div class="event-desc"><strong>Why it matters:</strong> 权威分较高，说明来源质量更稳，信息可信度与参考价值更高。</div><div class="event-desc"><strong>Impact:</strong> 主要影响：AI 应用落地与行业竞争。</div>
+                        </div>
+                        <div class="event-card card">
+                            <div class="event-card-header">
+                                <h3 class="event-title"><a href="https://wallstreetcn.com/articles/3771311" target="_blank" class="news-link">谷歌母公司Q1营收超预期增长22%，AI驱动多板块业务增长，云业务大增63%</a></h3>
+                                <div class="badge badge-danger">Score 23.9</div>
+                            </div>
+                            <div class="event-meta-group">
+                                <span class="badge badge-neutral">Sources 1</span>
+                                <span class="badge badge-neutral">Mentions 1</span>
+                                <span class="badge badge-neutral">Hot 13</span>
+                                <span class="badge badge-neutral">Spread 4.5</span>
+                                <span class="badge badge-neutral">Momentum 3.6</span>
+                                <span class="badge badge-neutral">Authority 9.0</span><span class="badge badge-neutral">华尔街见闻</span><span class="badge badge-neutral">#AI专题</span></div><div class="event-desc"><strong>Brief:</strong> 多家厂商相关动态在 1 个来源被提及 1 次，当前事件总分 23.9。</div><div class="event-desc"><strong>Why it matters:</strong> 权威分较高，说明来源质量更稳，信息可信度与参考价值更高。</div><div class="event-desc"><strong>Impact:</strong> 主要影响：算力与云基础设施。</div>
+                        </div>
+                        <div class="event-card card">
+                            <div class="event-card-header">
+                                <h3 class="event-title"><a href="https://www.cls.cn/detail/2361202" target="_blank" class="news-link">【数据看盘】超30亿元资金买入算力芯片龙头 多路资金联手抢筹中国长城</a></h3>
+                                <div class="badge badge-danger">Score 23.4</div>
+                            </div>
+                            <div class="event-meta-group">
+                                <span class="badge badge-neutral">Sources 1</span>
+                                <span class="badge badge-neutral">Mentions 1</span>
+                                <span class="badge badge-neutral">Hot 12</span>
+                                <span class="badge badge-neutral">Spread 4.5</span>
+                                <span class="badge badge-neutral">Momentum 3.6</span>
+                                <span class="badge badge-neutral">Authority 9.0</span><span class="badge badge-neutral">财联社热门</span><span class="badge badge-neutral">#AI专题</span></div><div class="event-desc"><strong>Brief:</strong> 多家厂商相关动态在 1 个来源被提及 1 次，当前事件总分 23.4。</div><div class="event-desc"><strong>Why it matters:</strong> 权威分较高，说明来源质量更稳，信息可信度与参考价值更高。</div><div class="event-desc"><strong>Impact:</strong> 主要影响：算力与云基础设施。</div>
+                        </div>
+                        <div class="event-card card">
+                            <div class="event-card-header">
+                                <h3 class="event-title"><a href="https://m.thepaper.cn/newsDetail_forward_33079055" target="_blank" class="news-link">不再当好好先生！特朗普发AI持枪图威胁伊朗</a></h3>
+                                <div class="badge badge-danger">Score 22.9</div>
+                            </div>
+                            <div class="event-meta-group">
+                                <span class="badge badge-neutral">Sources 1</span>
+                                <span class="badge badge-neutral">Mentions 1</span>
+                                <span class="badge badge-neutral">Hot 11</span>
+                                <span class="badge badge-neutral">Spread 4.5</span>
+                                <span class="badge badge-neutral">Momentum 3.6</span>
+                                <span class="badge badge-neutral">Authority 9.0</span><span class="badge badge-neutral">澎湃新闻</span><span class="badge badge-neutral">#AI专题</span></div><div class="event-desc"><strong>Brief:</strong> 多家厂商相关动态在 1 个来源被提及 1 次，当前事件总分 22.9。</div><div class="event-desc"><strong>Why it matters:</strong> 权威分较高，说明来源质量更稳，信息可信度与参考价值更高。</div><div class="event-desc"><strong>Impact:</strong> 主要影响：AI 应用落地与行业竞争。</div>
+                        </div>
+                        <div class="event-card card">
+                            <div class="event-card-header">
+                                <h3 class="event-title"><a href="https://wallstreetcn.com/articles/3771280" target="_blank" class="news-link">不是AI芯片！索罗斯门徒：电气化才是未来十年主线，看好铜、铝、电缆</a></h3>
+                                <div class="badge badge-danger">Score 22.9</div>
+                            </div>
+                            <div class="event-meta-group">
+                                <span class="badge badge-neutral">Sources 1</span>
+                                <span class="badge badge-neutral">Mentions 1</span>
+                                <span class="badge badge-neutral">Hot 11</span>
+                                <span class="badge badge-neutral">Spread 4.5</span>
+                                <span class="badge badge-neutral">Momentum 3.6</span>
+                                <span class="badge badge-neutral">Authority 9.0</span><span class="badge badge-neutral">华尔街见闻</span><span class="badge badge-neutral">#AI专题</span></div><div class="event-desc"><strong>Brief:</strong> 多家厂商相关动态在 1 个来源被提及 1 次，当前事件总分 22.9。</div><div class="event-desc"><strong>Why it matters:</strong> 权威分较高，说明来源质量更稳，信息可信度与参考价值更高。</div><div class="event-desc"><strong>Impact:</strong> 主要影响：算力与云基础设施。</div>
+                        </div>
+                        <div class="event-card card">
+                            <div class="event-card-header">
+                                <h3 class="event-title"><a href="https://www.cls.cn/detail/2361186" target="_blank" class="news-link">【焦点复盘】沪指周线4连阳迎4月收官，国产算力链大放异彩，锂电池板块表现分化</a></h3>
+                                <div class="badge badge-danger">Score 21.3</div>
+                            </div>
+                            <div class="event-meta-group">
+                                <span class="badge badge-neutral">Sources 1</span>
+                                <span class="badge badge-neutral">Mentions 1</span>
+                                <span class="badge badge-neutral">Hot 8</span>
+                                <span class="badge badge-neutral">Spread 4.5</span>
+                                <span class="badge badge-neutral">Momentum 3.6</span>
+                                <span class="badge badge-neutral">Authority 9.0</span><span class="badge badge-neutral">财联社热门</span><span class="badge badge-neutral">#AI专题</span></div><div class="event-desc"><strong>Brief:</strong> 多家厂商相关动态在 1 个来源被提及 1 次，当前事件总分 21.3。</div><div class="event-desc"><strong>Why it matters:</strong> 权威分较高，说明来源质量更稳，信息可信度与参考价值更高。</div><div class="event-desc"><strong>Impact:</strong> 主要影响：算力与云基础设施。</div>
+                        </div>
+                        <div class="event-card card">
+                            <div class="event-card-header">
+                                <h3 class="event-title"><a href="https://www.baidu.com/s?wd=%E5%AE%87%E6%A0%91%E5%8F%8C%E8%87%82%E4%BA%BA%E5%BD%A2%E6%9C%BA%E5%99%A8%E4%BA%BA2.69%E4%B8%87%E5%85%83%E8%B5%B7%E5%94%AE" target="_blank" class="news-link">宇树双臂人形机器人2.69万元起售</a></h3>
+                                <div class="badge badge-danger">Score 18.8</div>
+                            </div>
+                            <div class="event-meta-group">
+                                <span class="badge badge-neutral">Sources 1</span>
+                                <span class="badge badge-neutral">Mentions 1</span>
+                                <span class="badge badge-neutral">Hot 7</span>
+                                <span class="badge badge-neutral">Spread 4.5</span>
+                                <span class="badge badge-neutral">Momentum 3.6</span>
+                                <span class="badge badge-neutral">Authority 7.0</span><span class="badge badge-neutral">百度热搜</span><span class="badge badge-neutral">#AI专题</span></div><div class="event-desc"><strong>Brief:</strong> 宇树相关动态在 1 个来源被提及 1 次，当前事件总分 18.8。</div><div class="event-desc"><strong>Why it matters:</strong> 权威分较高，说明来源质量更稳，信息可信度与参考价值更高。</div><div class="event-desc"><strong>Impact:</strong> 主要影响：机器人与自动驾驶产业链。</div>
+                        </div>
+                        <div class="event-card card">
+                            <div class="event-card-header">
+                                <h3 class="event-title"><a href="https://tieba.baidu.com/hottopic/browse/hottopic?amp%3Btopic_name=AI%E9%AD%94%E6%94%B9%E9%BB%91%E8%A2%8D%2C%E6%98%9F%E5%85%89%E5%A7%90%E8%A2%AB%E7%8E%A9%E5%9D%8F&amp;topic_id=28353890" target="_blank" class="news-link">AI魔改黑袍,星光姐被玩坏</a></h3>
+                                <div class="badge badge-danger">Score 17.8</div>
+                            </div>
+                            <div class="event-meta-group">
+                                <span class="badge badge-neutral">Sources 1</span>
+                                <span class="badge badge-neutral">Mentions 1</span>
+                                <span class="badge badge-neutral">Hot 8</span>
+                                <span class="badge badge-neutral">Spread 4.5</span>
+                                <span class="badge badge-neutral">Momentum 3.6</span>
+                                <span class="badge badge-neutral">Authority 5.5</span><span class="badge badge-neutral">贴吧</span><span class="badge badge-neutral">#AI专题</span></div><div class="event-desc"><strong>Brief:</strong> 多家厂商相关动态在 1 个来源被提及 1 次，当前事件总分 17.8。</div><div class="event-desc"><strong>Why it matters:</strong> 权威分较高，说明来源质量更稳，信息可信度与参考价值更高。</div><div class="event-desc"><strong>Impact:</strong> 主要影响：AI 应用落地与行业竞争。</div>
+                        </div>
+                        <div class="event-card card">
+                            <div class="event-card-header">
+                                <h3 class="event-title"><a href="https://search.bilibili.com/all?keyword=%E8%B6%85%E6%87%82UP%E4%B8%BB%E7%9A%84AI%E5%88%9B%E4%BD%9C%E5%8A%A9%E6%89%8B" target="_blank" class="news-link">超懂UP主的AI创作助手</a></h3>
+                                <div class="badge badge-danger">Score 16.8</div>
+                            </div>
+                            <div class="event-meta-group">
+                                <span class="badge badge-neutral">Sources 1</span>
+                                <span class="badge badge-neutral">Mentions 1</span>
+                                <span class="badge badge-neutral">Hot 6</span>
+                                <span class="badge badge-neutral">Spread 4.5</span>
+                                <span class="badge badge-neutral">Momentum 3.6</span>
+                                <span class="badge badge-neutral">Authority 5.5</span><span class="badge badge-neutral">bilibili 热搜</span><span class="badge badge-neutral">#AI专题</span></div><div class="event-desc"><strong>Brief:</strong> 多家厂商相关动态在 1 个来源被提及 1 次，当前事件总分 16.8。</div><div class="event-desc"><strong>Why it matters:</strong> 权威分较高，说明来源质量更稳，信息可信度与参考价值更高。</div><div class="event-desc"><strong>Impact:</strong> 主要影响：AI 应用落地与行业竞争。</div>
+                        </div>
+                        <div class="event-card card">
+                            <div class="event-card-header">
+                                <h3 class="event-title"><a href="https://tieba.baidu.com/hottopic/browse/hottopic?amp%3Btopic_name=%E5%81%B7%E5%9B%BD%E5%86%8D%E7%8E%B0%2C%E5%AE%87%E6%A0%91%E6%9C%BA%E5%99%A8%E7%8B%97%E6%88%90%E6%97%A5%E6%9C%AC%E8%B4%A7&amp;topic_id=28353878" target="_blank" class="news-link">偷国再现,宇树机器狗成日本货</a></h3>
+                                <div class="badge badge-danger">Score 16.8</div>
+                            </div>
+                            <div class="event-meta-group">
+                                <span class="badge badge-neutral">Sources 1</span>
+                                <span class="badge badge-neutral">Mentions 1</span>
+                                <span class="badge badge-neutral">Hot 6</span>
+                                <span class="badge badge-neutral">Spread 4.5</span>
+                                <span class="badge badge-neutral">Momentum 3.6</span>
+                                <span class="badge badge-neutral">Authority 5.5</span><span class="badge badge-neutral">贴吧</span><span class="badge badge-neutral">#宇树 / Unitree / 优必选 / 傅利叶 / 智元机器人 / Figure AI / Agility Robotics / Boston Dynamics / 1X / Tesla Bot / Optimus</span></div><div class="event-desc"><strong>Brief:</strong> 宇树相关动态在 1 个来源被提及 1 次，当前事件总分 16.8。</div><div class="event-desc"><strong>Why it matters:</strong> 权威分较高，说明来源质量更稳，信息可信度与参考价值更高。</div><div class="event-desc"><strong>Impact:</strong> 主要影响：机器人与自动驾驶产业链。</div>
+                        </div>
+                    </div>
+                </div></div><div class="section-divider partition partition-rss">
+                <div class="rss-section animate-fade-in stagger-4">
+                    <div class="rss-section-header">
+                        <div class="rss-section-title">RSS 新增更新</div>
+                        <div class="rss-section-count">1 条</div>
+                    </div>
+                    <div class="rss-feeds-grid grid-2col">
+                    <div class="feed-group card">
+                        <div class="card-header">
+                            <h3 class="card-title">AI专题</h3>
+                            <div class="card-meta">1 条</div>
+                        </div>
+                        <div class="card-body"><div class="card-list-container">
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 19:00</span><span class="text-sm-muted">The Verge</span><span class="rss-author" style="color: #dc2626;">NEW</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://www.theverge.com/ai-artificial-intelligence/920401/gen-z-ai" target="_blank" class="rss-link">The more young people use AI, the more they hate it</a>
+                            </div>
+                        </div></div>
+                    </div></div>
+                    </div>
+                </div></div><div class="section-divider partition partition-hotlist">
+                <div class="hotlist-section animate-fade-in stagger-1"><div class="tab-bar"><button class="tab-btn" data-tab-index="0">AI专题<span class="tab-count">10</span></button><button class="tab-btn" data-tab-index="1">宇树 / Unitree / 优必选 / 傅利叶 / 智元机器人 / Figure AI / Agility Robotics / Boston Dynamics / 1X / Tesla Bot / Optimus<span class="tab-count">1</span></button><button class="tab-btn hidden-chip" data-tab-index="all">全部</button></div>
+                <div class="word-group card" data-tab-index="0">
+                    <div class="word-header card-header">
+                        <div class="card-title">AI专题</div>
+                        <div class="card-meta"><span class="collapse-icon">▼</span>10 条 · 1/2</div>
+                    </div>
+                    <div class="card-body"><div class="card-list-container">
+                    <div class="news-item list-item " style="display: flex">
+                        <div class="item-number news-number">1</div>
+                        <div class="item-content">
+                            <div class="item-header"><span class="text-sm-muted">华尔街见闻</span><span class="rank-num ">6</span><span class="text-sm-muted">18:53~19:02</span><span class="text-sm-success">3次</span>
+                            </div>
+                            <div class="item-title news-title"><a href="https://wallstreetcn.com/articles/3771278" target="_blank" class="news-link">算力需求驱动，寒武纪Q1营收同比增160%，净利飙升185%，章建平退出十大股东｜财报见闻</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item list-item " style="display: flex">
+                        <div class="item-number news-number">2</div>
+                        <div class="item-content">
+                            <div class="item-header"><span class="text-sm-muted">财联社热门</span><span class="rank-num ">7</span><span class="text-sm-muted">18:53~19:02</span><span class="text-sm-success">3次</span>
+                            </div>
+                            <div class="item-title news-title"><a href="https://www.cls.cn/detail/2360653" target="_blank" class="news-link">美股科技“四巨头”同日放榜 “AI烧钱”大战愈演愈烈</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item list-item " style="display: flex">
+                        <div class="item-number news-number">3</div>
+                        <div class="item-content">
+                            <div class="item-header"><span class="text-sm-muted">华尔街见闻</span><span class="rank-num ">8</span><span class="text-sm-muted">18:53~19:02</span><span class="text-sm-success">3次</span>
+                            </div>
+                            <div class="item-title news-title"><a href="https://wallstreetcn.com/articles/3771311" target="_blank" class="news-link">谷歌母公司Q1营收超预期增长22%，AI驱动多板块业务增长，云业务大增63%</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item list-item " style="display: flex">
+                        <div class="item-number news-number">4</div>
+                        <div class="item-content">
+                            <div class="item-header"><span class="text-sm-muted">财联社热门</span><span class="rank-num ">9</span><span class="text-sm-muted">18:53~19:02</span><span class="text-sm-success">3次</span>
+                            </div>
+                            <div class="item-title news-title"><a href="https://www.cls.cn/detail/2361202" target="_blank" class="news-link">【数据看盘】超30亿元资金买入算力芯片龙头 多路资金联手抢筹中国长城</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item list-item " style="display: flex">
+                        <div class="item-number news-number">5</div>
+                        <div class="item-content">
+                            <div class="item-header"><span class="text-sm-muted">澎湃新闻</span><span class="rank-num ">10</span><span class="text-sm-muted">18:53~19:02</span><span class="text-sm-success">3次</span>
+                            </div>
+                            <div class="item-title news-title"><a href="https://m.thepaper.cn/newsDetail_forward_33079055" target="_blank" class="news-link">不再当好好先生！特朗普发AI持枪图威胁伊朗</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item list-item " style="display: none">
+                        <div class="item-number news-number">6</div>
+                        <div class="item-content">
+                            <div class="item-header"><span class="text-sm-muted">华尔街见闻</span><span class="rank-num ">10</span><span class="text-sm-muted">18:53~19:02</span><span class="text-sm-success">3次</span>
+                            </div>
+                            <div class="item-title news-title"><a href="https://wallstreetcn.com/articles/3771280" target="_blank" class="news-link">不是AI芯片！索罗斯门徒：电气化才是未来十年主线，看好铜、铝、电缆</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item list-item " style="display: none">
+                        <div class="item-number news-number">7</div>
+                        <div class="item-content">
+                            <div class="item-header"><span class="text-sm-muted">财联社热门</span><span class="rank-num ">13</span><span class="text-sm-muted">18:53~19:02</span><span class="text-sm-success">3次</span>
+                            </div>
+                            <div class="item-title news-title"><a href="https://www.cls.cn/detail/2361186" target="_blank" class="news-link">【焦点复盘】沪指周线4连阳迎4月收官，国产算力链大放异彩，锂电池板块表现分化</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item list-item " style="display: none">
+                        <div class="item-number news-number">8</div>
+                        <div class="item-content">
+                            <div class="item-header"><span class="text-sm-muted">贴吧</span><span class="rank-num ">13-14</span><span class="text-sm-muted">18:53~19:02</span><span class="text-sm-success">3次</span>
+                            </div>
+                            <div class="item-title news-title"><a href="https://tieba.baidu.com/hottopic/browse/hottopic?amp%3Btopic_name=AI%E9%AD%94%E6%94%B9%E9%BB%91%E8%A2%8D%2C%E6%98%9F%E5%85%89%E5%A7%90%E8%A2%AB%E7%8E%A9%E5%9D%8F&amp;topic_id=28353890" target="_blank" class="news-link">AI魔改黑袍,星光姐被玩坏</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item list-item " style="display: none">
+                        <div class="item-number news-number">9</div>
+                        <div class="item-content">
+                            <div class="item-header"><span class="text-sm-muted">百度热搜</span><span class="rank-num ">14</span><span class="text-sm-muted">18:53~19:02</span><span class="text-sm-success">3次</span>
+                            </div>
+                            <div class="item-title news-title"><a href="https://www.baidu.com/s?wd=%E5%AE%87%E6%A0%91%E5%8F%8C%E8%87%82%E4%BA%BA%E5%BD%A2%E6%9C%BA%E5%99%A8%E4%BA%BA2.69%E4%B8%87%E5%85%83%E8%B5%B7%E5%94%AE" target="_blank" class="news-link">宇树双臂人形机器人2.69万元起售</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item list-item " style="display: none">
+                        <div class="item-number news-number">10</div>
+                        <div class="item-content">
+                            <div class="item-header"><span class="text-sm-muted">bilibili 热搜</span><span class="rank-num ">23</span><span class="text-sm-muted">18:53~19:02</span><span class="text-sm-success">3次</span>
+                            </div>
+                            <div class="item-title news-title"><a href="https://search.bilibili.com/all?keyword=%E8%B6%85%E6%87%82UP%E4%B8%BB%E7%9A%84AI%E5%88%9B%E4%BD%9C%E5%8A%A9%E6%89%8B" target="_blank" class="news-link">超懂UP主的AI创作助手</a>
+                            </div>
+                        </div>
+                    </div></div><button class="view-more-btn" onclick="toggleViewMore(this)">查看更多 (5)</button>
+                </div></div>
+                <div class="word-group card" data-tab-index="1">
+                    <div class="word-header card-header">
+                        <div class="card-title">宇树 / Unitree / 优必选 / 傅利叶 / 智元机器人 / Figure AI / Agility Robotics / Boston Dynamics / 1X / Tesla Bot / Optimus</div>
+                        <div class="card-meta"><span class="collapse-icon">▼</span>1 条 · 2/2</div>
+                    </div>
+                    <div class="card-body"><div class="card-list-container">
+                    <div class="news-item list-item " style="display: flex">
+                        <div class="item-number news-number">1</div>
+                        <div class="item-content">
+                            <div class="item-header"><span class="text-sm-muted">贴吧</span><span class="rank-num ">16-17</span><span class="text-sm-muted">18:53~19:02</span><span class="text-sm-success">3次</span>
+                            </div>
+                            <div class="item-title news-title"><a href="https://tieba.baidu.com/hottopic/browse/hottopic?amp%3Btopic_name=%E5%81%B7%E5%9B%BD%E5%86%8D%E7%8E%B0%2C%E5%AE%87%E6%A0%91%E6%9C%BA%E5%99%A8%E7%8B%97%E6%88%90%E6%97%A5%E6%9C%AC%E8%B4%A7&amp;topic_id=28353878" target="_blank" class="news-link">偷国再现,宇树机器狗成日本货</a>
+                            </div>
+                        </div>
+                    </div></div>
+                </div></div>
+                </div></div><div class="section-divider partition partition-rss">
+                <div class="rss-section animate-fade-in stagger-4">
+                    <div class="rss-section-header">
+                        <div class="rss-section-title">RSS 订阅更新</div>
+                        <div class="rss-section-count">69 条</div>
+                    </div>
+                    <div class="rss-feeds-grid grid-2col">
+                    <div class="feed-group card">
+                        <div class="card-header">
+                            <h3 class="card-title">AI专题</h3>
+                            <div class="card-meta">52 条</div>
+                        </div>
+                        <div class="card-body"><div class="card-list-container">
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 19:00</span><span class="text-sm-muted">The Verge</span><span class="rss-author" style="color: #dc2626;">NEW</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://www.theverge.com/ai-artificial-intelligence/920401/gen-z-ai" target="_blank" class="rss-link">The more young people use AI, the more they hate it</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 16:59</span><span class="text-sm-muted">CNBC Top News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://www.cnbc.com/2026/04/30/nvidia-backs-ai-legal-tech-legora.html" target="_blank" class="rss-link">Nvidia just invested in the AI legal startup that&#x27;s splashing Jude Law ads everywhere</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 15:52</span><span class="text-sm-muted">Hacker News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://datacenter.fm/" target="_blank" class="rss-link">DataCenter.FM – background noise app featuring the sound of the AI bubble</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 15:34</span><span class="text-sm-muted">CNBC Top News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://www.cnbc.com/2026/04/30/samsung-q1-earnings-ai-memory-chip-demand-profit-record.html" target="_blank" class="rss-link">Samsung profit surges over eightfold to beat estimates as AI boom fuels memory chip crunch</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 13:31</span><span class="text-sm-muted">CNBC Top News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://www.cnbc.com/2026/04/30/israel-economy-stock-market-tel-aviv-trump-netanyahu-gdp-us-inflation.html" target="_blank" class="rss-link">Israel’s economy and financial markets are booming — even as conflict rages in the Middle East</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 13:12</span><span class="text-sm-muted">CNBC Top News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://www.cnbc.com/2026/04/30/softbank-roze-ai-robotics-ipo-100-billion-ft-report.html" target="_blank" class="rss-link">SoftBank reportedly weighs $100 billion valuation for new AI and robotics spinout in potential U.S. IPO</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 11:11</span><span class="text-sm-muted">Hacker News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://github.com/cauchy221/Alignment-Whack-a-Mole-Code" target="_blank" class="rss-link">Alignment whack-a-mole: Finetuning activates recall of copyrighted books in LLMs</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 10:15</span><span class="text-sm-muted">Hacker News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://simonwillison.net/2026/Apr/30/zig-anti-ai/" target="_blank" class="rss-link">The Zig project&#x27;s rationale for their anti-AI contribution policy</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 09:37</span><span class="text-sm-muted">CNBC Top News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://www.cnbc.com/2026/04/29/meta-q1-earnings-report-2026.html" target="_blank" class="rss-link">Meta stock drops on quarterly results as &#x27;internet disruptions&#x27; in Iran drag down user numbers</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 09:02</span><span class="text-sm-muted">CNBC Top News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://www.cnbc.com/2026/04/29/investors-trust-google-more-than-meta-when-comes-to-spending-on-ai.html" target="_blank" class="rss-link">Investors still trust Google more than Meta when it comes to spending their money on AI</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 08:56</span><span class="text-sm-muted">Hacker News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://mikeoss.com/" target="_blank" class="rss-link">Mike: open-source legal AI</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 08:53</span><span class="text-sm-muted">CNBC Top News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://www.cnbc.com/2026/04/30/ai-threat-indias-growth-story-jobs.html" target="_blank" class="rss-link">Inside India newsletter: AI is exposing cracks in India’s growth story as it hits high-paying IT jobs</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 01:32</span><span class="text-sm-muted">The Verge</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://www.theverge.com/tech/920723/linux-ubuntu-ai-features-ai-kill-switch" target="_blank" class="rss-link">Ubuntu’s AI plans have Linux users looking for a ‘kill switch’</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 00:42</span><span class="text-sm-muted">TechCrunch</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://techcrunch.com/2026/04/29/google-photos-uses-ai-to-make-the-iconic-closet-from-clueless-a-reality/" target="_blank" class="rss-link">Google Photos uses AI to make the iconic closet from ‘Clueless’ a reality</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-29 23:12</span><span class="text-sm-muted">TechCrunch</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://techcrunch.com/2026/04/29/uber-is-in-the-hotel-business-now-thanks-in-part-to-ai/" target="_blank" class="rss-link">Uber is in the hotel business now, thanks in part to AI</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-29 22:00</span><span class="text-sm-muted">TechCrunch</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://techcrunch.com/2026/04/29/earth-ai-is-vertically-integrating-the-search-for-critical-minerals/" target="_blank" class="rss-link">Earth AI is vertically integrating the search for critical minerals</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/news/27661" target="_blank" class="rss-link">钉钉发布 AI 录音硬件 DingTalk A1Pro:售价1299元，支持手机反向充电</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/news/27660" target="_blank" class="rss-link">押注于人而非代码：Zig 项目全面禁止 LLM 辅助贡献引发热议</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/news/27659" target="_blank" class="rss-link">​快手推出 KroWork:AI 桌面助手助你高效办公</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/news/27657" target="_blank" class="rss-link">AI从实验室走向生活，科大讯飞多款黑科技亮相福州</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/news/27656" target="_blank" class="rss-link">​巨日禄宣布与火山引擎达成深度合作 AI短剧进入“工业化”时代</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/news/27655" target="_blank" class="rss-link">​红果短剧全面清理超万部低质 AI 剧 规范内容提升品质</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/news/27654" target="_blank" class="rss-link">​小红书成立 AI 一级部门 “Dots”</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/news/27653" target="_blank" class="rss-link">亚马逊上线AI语音问答功能，打造 24 小时在线购物专家</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/news/27652" target="_blank" class="rss-link">欧莱雅中国发布“AI向美”新战略：科技加码透明度，拒绝虚假妆效</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/news/27651" target="_blank" class="rss-link">​小红书重磅组织调整，柯南出任总裁并成立 AI 部门</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/news/27650" target="_blank" class="rss-link">蚂蚁集团牵头推动ASL协议，填补智能体可信协作空白</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/news/27649" target="_blank" class="rss-link">微软第三财季营收突破 820 亿美元，AI年收入激增123%成核心增长极</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/news/27648" target="_blank" class="rss-link">小红书官宣组织升级:柯南出任总裁，成立 AI 一级部门 Dots 与海外部 Rednote</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/news/27643" target="_blank" class="rss-link">爆破 9000 亿美元！Anthropic拟在IPO前完成AI史上最高融资</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/news/27642" target="_blank" class="rss-link">AI商业化瓶颈被打破：零犀科技凭借因果大模型实现规模化盈利</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/news/27641" target="_blank" class="rss-link">全模态全尺寸全国产！央企发布十项数字技术成果，星辰大模型领衔自主可控新突破</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase Daily</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/daily/27658" target="_blank" class="rss-link">AI日报：DeepSeek识图模式灰测；小红书成立AI一级部门；阿里发布程序员“数字分身”QoderWake</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase Daily</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/daily/27605" target="_blank" class="rss-link">AI日报：Kimi K3将于第三季度推出；英伟达发布多模态“全能模型”；Claude深度集成Adobe、Blender</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase Daily</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/daily/27549" target="_blank" class="rss-link">AI日报：千问APP首发灰测HappyHorse;小米新款人形机器人亮相投资者日;支付宝上线“AI收”</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase Daily</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/daily/27502" target="_blank" class="rss-link">AI日报：小红书首次公布AI治理主张；荣耀YOYO率先接入DeepSeek-V4；灵光App率先将世界模型搬上移动端</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase Daily</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/daily/27457" target="_blank" class="rss-link">AI日报：DeepSeek-V4预览版正式发布；特斯拉车载语音接入豆包；美团秘密试水万亿级 AI 大模型</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase Daily</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/daily/27410" target="_blank" class="rss-link">AI日报：字节跳动发布Seed3D2.0；小米 MiMo-V2.5公测；阿里Qwen3.6-27B正式开源</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase Daily</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/daily/27364" target="_blank" class="rss-link">AI日报：OpenAI发布ChatGPT Images 2.0；谷歌推出Gemini3.1Pro深度研究代理；百灵大模型正式发布 Ling-2.6-flash</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase Daily</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/daily/27316" target="_blank" class="rss-link">AI日报：Kimi K2.6模型发布；腾讯QClaw海外版上线；爱奇艺回应“签约AI演员”</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase Daily</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/daily/27272" target="_blank" class="rss-link">AI日报：Claude推出Claude Design；DeepSeek开启首轮外部融资；蚂蚁灵光App闪应用突破3000万个</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase Daily</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/daily/27234" target="_blank" class="rss-link">AI日报：Claude Opus 4. 7发布；阿里开源 Qwen3.6-35B-A3B；Perplexity推出Mac端AI助手</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase Daily</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/daily/27190" target="_blank" class="rss-link">AI日报：阿里推开放世界模型Happy Oyster；Claude Opus 4.7即将发布；腾讯开源混元3D 世界模型2.0</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase Daily</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/daily/27148" target="_blank" class="rss-link">AI日报：Chrome为Gemini上线“技能库”；小红书开源训练引擎Relax；Midjourney V8.1发布</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase Daily</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/daily/27112" target="_blank" class="rss-link">AI日报：火山引擎Seedance2.0 API全面开放；阿里巴巴首款具身机器人曝光；Skywork AI发布实时视频生成系统Matrix-Game 3.0</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase Daily</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/daily/27074" target="_blank" class="rss-link">AI日报：Minimax 2.7 正式开源；河南首个“AI+OPC”生态联盟启动；荣耀发布YOYO Claw“龙虾”技术</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase Daily</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/daily/27029" target="_blank" class="rss-link">AI日报：MiniMax 发布 Music 2.6；扣子2.5重磅升级；AI人格测试产品SBTI走红网络</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase Daily</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/daily/26981" target="_blank" class="rss-link">AI日报：即梦AI发布协作型叙事工具Octo；公众号打击AI自动化写作;MiniMax 发布 MMX-CLI</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase Daily</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/daily/26940" target="_blank" class="rss-link">AI日报：AI视频神秘黑马Happy Horse亮相；爱诗科技 PixVerse C1 发布；360 打造“虾书”APP</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase Daily</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/daily/26890" target="_blank" class="rss-link">AI日报：腾讯研发新AI产品探梦DreamNow；MiniMax 2.7 确认本周开源；千问3.6Plus登顶OpenRouter 全球大模型调用榜</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase Daily</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/daily/26845" target="_blank" class="rss-link">AI日报：阿里发布Wan2.7视频模型；红果下架AI剧桃花簪；广电严禁AI演员换脸</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase Daily</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/daily/26808" target="_blank" class="rss-link">AI日报：智谱发布GLM-5V-Turbo多模态Coding大模型；Seedance 2.0 API正式全量开放；美团 LongCat-AudioDiT 开源</a>
+                            </div>
+                        </div></div><button class="view-more-btn" onclick="toggleViewMore(this)">查看更多 (47)</button>
+                    </div></div>
+                    <div class="feed-group card">
+                        <div class="card-header">
+                            <h3 class="card-title">OpenAI / Claude / Gemini / Microsoft AI / Meta AI / xAI / NVIDIA / AMD AI / Intel AI / AWS AI / Perplexity / Cohere / Scale AI / Databricks AI / Snowflake AI / Palantir AIP / Salesforce Agentforce / ServiceNow AI / Adobe Firefly / Hugging Face / LangChain / Vector DB / AI Infra</h3>
+                            <div class="card-meta">16 条</div>
+                        </div>
+                        <div class="card-body"><div class="card-list-container">
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 10:47</span><span class="text-sm-muted">CNBC Top News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://www.cnbc.com/2026/04/29/amazon-amzn-q1-earnings-report-2026.html" target="_blank" class="rss-link">Amazon earnings beat expectations with strong cloud growth</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 10:05</span><span class="text-sm-muted">CNBC Top News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://www.cnbc.com/2026/04/29/microsoft-msft-q3-earnings-report-2026.html" target="_blank" class="rss-link">Microsoft calls for $190 billion in 2026 capital spending on soaring memory prices</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 09:00</span><span class="text-sm-muted">TechCrunch</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://techcrunch.com/2026/04/29/amazon-meta-join-fight-to-end-google-pay-phonepe-dominance-in-india/" target="_blank" class="rss-link">Amazon, Meta join fight to end Google Pay, PhonePe dominance in India</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 08:23</span><span class="text-sm-muted">CNBC Top News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://www.cnbc.com/2026/04/29/microsoft-delivers-a-promising-quarter-but-cant-shake-software-fears.html" target="_blank" class="rss-link">Microsoft delivers a promising quarter but can&#x27;t shake the software fears</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 08:14</span><span class="text-sm-muted">TechCrunch</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://techcrunch.com/2026/04/29/amazons-cloud-business-is-surging-and-so-is-its-capital-spending/" target="_blank" class="rss-link">Amazon’s cloud business is surging — and so is its capital spending</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 08:07</span><span class="text-sm-muted">TechCrunch</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://techcrunch.com/2026/04/29/sources-anthropic-could-raise-a-new-50b-round-at-a-valuation-of-900b/" target="_blank" class="rss-link">Sources: Anthropic could raise a new $50B round at a valuation of $900B</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 07:58</span><span class="text-sm-muted">TechCrunch</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://techcrunch.com/2026/04/29/meta-is-still-burning-money-on-ar-vr/" target="_blank" class="rss-link">Meta is still burning money on AR/VR</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 07:55</span><span class="text-sm-muted">TechCrunch</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://techcrunch.com/2026/04/29/satya-nadella-says-hes-ready-to-exploit-the-new-openai-deal/" target="_blank" class="rss-link">Satya Nadella says he’s ready to ‘exploit’ the new OpenAI deal</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 07:09</span><span class="text-sm-muted">CNBC Top News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://www.cnbc.com/2026/04/29/anthropic-weighs-raising-funds-at-900b-valuation-topping-openai.html" target="_blank" class="rss-link">Anthropic in talks with investors to raise funds at $900 billion valuation, higher than OpenAI</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 07:02</span><span class="text-sm-muted">TechCrunch</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://techcrunch.com/2026/04/29/microsoft-says-it-has-over-20m-paid-copilot-users-and-they-really-are-using-it/" target="_blank" class="rss-link">Microsoft says it has over 20M paid Copilot users, and they really are using it</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 06:20</span><span class="text-sm-muted">TechCrunch</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://techcrunch.com/2026/04/29/google-cloud-surpasses-20b-but-says-growth-was-capacity-constrained/" target="_blank" class="rss-link">Google Cloud surpasses $20B, but says growth was capacity-constrained</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 04:59</span><span class="text-sm-muted">TechCrunch</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://techcrunch.com/2026/04/29/google-gains-25m-subscriptions-in-q1-driven-by-youtube-and-google-one/" target="_blank" class="rss-link">Google gains 25M subscriptions in Q1, driven by YouTube and Google One</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 04:43</span><span class="text-sm-muted">The Verge</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://www.theverge.com/tech/920785/microsoft-xbox-revenue-q3-2026-earnings" target="_blank" class="rss-link">Microsoft reports sinking Xbox revenue as its cloud business climbs</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 04:28</span><span class="text-sm-muted">The Verge</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://www.theverge.com/tech/920815/google-alphabet-q1-2026-earnings-sundar-pichai" target="_blank" class="rss-link">Google Search queries hit an ‘all time high’ last quarter</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">04-30 00:40</span><span class="text-sm-muted">TechCrunch</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://techcrunch.com/2026/04/29/more-gemini-features-are-coming-to-google-tv/" target="_blank" class="rss-link">More Gemini features are coming to Google TV</a>
+                            </div>
+                        </div>
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/news/27646" target="_blank" class="rss-link">OpenAI 新模型系统指令泄露，GPT-5.5 竟被禁止谈论“哥布林”？</a>
+                            </div>
+                        </div></div><button class="view-more-btn" onclick="toggleViewMore(this)">查看更多 (11)</button>
+                    </div></div>
+                    <div class="feed-group card">
+                        <div class="card-header">
+                            <h3 class="card-title">DeepSeek / 通义千问 / Qwen / 文心一言 / ERNIE / 豆包 / 扣子 / Coze / 元宝 / 混元 / Hunyuan / Kimi / 月之暗面 / 智谱 / GLM / MiniMax / 海螺 / 百川智能 / 零一万物 / 商汤 / 日日新 / 阶跃星辰 / 面壁智能 / 昆仑万维 / 天工大模型 / 讯飞星火 / 火山引擎 / 阿里云百炼</h3>
+                            <div class="card-meta">1 条</div>
+                        </div>
+                        <div class="card-body"><div class="card-list-container">
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header"><span class="text-sm-muted">AIbase News</span>
+                            </div>
+                            <div class="item-title rss-title"><a href="https://news.aibase.cn/news/27644" target="_blank" class="rss-link">文心一言5.1预览版上线 LMSYS 竞技场，目前位列全球第13位</a>
+                            </div>
+                        </div></div>
+                    </div></div>
+                    </div>
+                </div></div><div class="section-divider partition partition-standalone">
+                <div class="standalone-section animate-fade-in stagger-4">
+                    <div class="standalone-section-header">
+                        <div class="standalone-section-title">独立展示区</div>
+                        <div class="standalone-section-count">10 条</div>
+                    </div>
+                    <div class="standalone-groups-grid grid-2col">
+                    <div class="standalone-group card" data-standalone-tab="0">
+                        <div class="card-header">
+                            <h3 class="card-title">华尔街见闻</h3>
+                            <div class="card-meta">10 条</div>
+                        </div>
+                        <div class="card-body"><div class="card-list-container">
+                        <div class="news-item" style="display: flex">
+                            <div class="item-number news-number">1</div>
+                            <div class="item-content">
+                                <div class="item-header"><span class="rank-num top">1</span><span class="text-sm-muted">18:53~19:02</span><span class="text-sm-success">3次</span>
+                                </div>
+                                <div class="item-title news-title"><a href="https://wallstreetcn.com/articles/3771214" target="_blank" class="news-link">美联储34年最大分歧叠加油价飙升，美债重挫，美股横盘，美元走强，黄金三连跌</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="news-item" style="display: flex">
+                            <div class="item-number news-number">2</div>
+                            <div class="item-content">
+                                <div class="item-header"><span class="rank-num top">2</span><span class="text-sm-muted">18:53~19:02</span><span class="text-sm-success">3次</span>
+                                </div>
+                                <div class="item-title news-title"><a href="https://wallstreetcn.com/articles/3771302" target="_blank" class="news-link">鲍威尔“告别会”现34年最大分歧，美联储再次按兵不动，但四票委反对决议声明</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="news-item" style="display: flex">
+                            <div class="item-number news-number">3</div>
+                            <div class="item-content">
+                                <div class="item-header"><span class="rank-num top">3</span><span class="text-sm-muted">18:53~19:02</span><span class="text-sm-success">3次</span>
+                                </div>
+                                <div class="item-title news-title"><a href="https://wallstreetcn.com/articles/3771306" target="_blank" class="news-link">鲍威尔“最后一舞”：将留任美联储理事、不当影子主席，四票反对反映委员会重心趋于中性（附全文）</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="news-item" style="display: flex">
+                            <div class="item-number news-number">4</div>
+                            <div class="item-content">
+                                <div class="item-header"><span class="rank-num high">4</span><span class="text-sm-muted">18:53~19:02</span><span class="text-sm-success">3次</span>
+                                </div>
+                                <div class="item-title news-title"><a href="https://wallstreetcn.com/articles/3771318" target="_blank" class="news-link">华尔街见闻早餐FM-Radio | 2026年4月30日</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="news-item" style="display: flex">
+                            <div class="item-number news-number">5</div>
+                            <div class="item-content">
+                                <div class="item-header"><span class="rank-num high">5</span><span class="text-sm-muted">18:53~19:02</span><span class="text-sm-success">3次</span>
+                                </div>
+                                <div class="item-title news-title"><a href="https://wallstreetcn.com/articles/3771319" target="_blank" class="news-link">“科技四巨头”罕见同日财报：谷歌大涨Meta重挫，谷歌、微软和亚马逊云增长迅猛，谷歌和Meta上调资本开支</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="news-item" style="display: none">
+                            <div class="item-number news-number">6</div>
+                            <div class="item-content">
+                                <div class="item-header"><span class="rank-num high">6</span><span class="text-sm-muted">18:53~19:02</span><span class="text-sm-success">3次</span>
+                                </div>
+                                <div class="item-title news-title"><a href="https://wallstreetcn.com/articles/3771278" target="_blank" class="news-link">算力需求驱动，寒武纪Q1营收同比增160%，净利飙升185%，章建平退出十大股东｜财报见闻</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="news-item" style="display: none">
+                            <div class="item-number news-number">7</div>
+                            <div class="item-content">
+                                <div class="item-header"><span class="rank-num high">7</span><span class="text-sm-muted">18:53~19:02</span><span class="text-sm-success">3次</span>
+                                </div>
+                                <div class="item-title news-title"><a href="https://wallstreetcn.com/articles/3771312" target="_blank" class="news-link">微软上季营收超预期增长，Azure云收入增40%，资本支出意外放缓 | 财报见闻</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="news-item" style="display: none">
+                            <div class="item-number news-number">8</div>
+                            <div class="item-content">
+                                <div class="item-header"><span class="rank-num high">8</span><span class="text-sm-muted">18:53~19:02</span><span class="text-sm-success">3次</span>
+                                </div>
+                                <div class="item-title news-title"><a href="https://wallstreetcn.com/articles/3771311" target="_blank" class="news-link">谷歌母公司Q1营收超预期增长22%，AI驱动多板块业务增长，云业务大增63%</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="news-item" style="display: none">
+                            <div class="item-number news-number">9</div>
+                            <div class="item-content">
+                                <div class="item-header"><span class="rank-num high">9</span><span class="text-sm-muted">18:53~19:02</span><span class="text-sm-success">3次</span>
+                                </div>
+                                <div class="item-title news-title"><a href="https://wallstreetcn.com/articles/3771344" target="_blank" class="news-link">美军拟以“高超音速导弹”打击伊朗，周四将向特朗普汇报新“打击计划”</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="news-item" style="display: none">
+                            <div class="item-number news-number">10</div>
+                            <div class="item-content">
+                                <div class="item-header"><span class="rank-num high">10</span><span class="text-sm-muted">18:53~19:02</span><span class="text-sm-success">3次</span>
+                                </div>
+                                <div class="item-title news-title"><a href="https://wallstreetcn.com/articles/3771280" target="_blank" class="news-link">不是AI芯片！索罗斯门徒：电气化才是未来十年主线，看好铜、铝、电缆</a>
+                                </div>
+                            </div>
+                        </div></div><button class="view-more-btn" onclick="toggleViewMore(this)">查看更多 (5)</button>
+                    </div></div>
+                    </div>
+                </div></div><div class="section-divider partition partition-ai_analysis">
+                <div class="ai-section">
+                    <div class="ai-error">⚠️ AI 分析失败: 未配置 AI API Key，请在 config.yaml 或环境变量 AI_API_KEY 中设置</div>
+                </div></div>
+            </div>
+            </div>
+
+            <div class="footer">
+                <div class="footer-content">
+                    由 <span class="project-name">TrendRadar</span> 生成 ·
+                    <a href="https://github.com/sansan0/TrendRadar" target="_blank" class="footer-link">
+                        GitHub 开源项目
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="fab-bar">
+            <button class="fab-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="返回顶部">↑</button>
+            <button class="fab-btn fab-help">
+                <span>?</span>
+                <div class="fab-tooltip">
+                    <div class="tip-row"><span>切换宽屏</span><span class="tip-key">W</span></div>
+                    <div class="tip-row"><span>暗色模式</span><span class="tip-key">D</span></div>
+                    <div class="tip-row"><span>搜索</span><span class="tip-key">/</span></div>
+                    <div class="tip-row"><span>上一个 Tab</span><span class="tip-key">←</span></div>
+                    <div class="tip-row"><span>下一个 Tab</span><span class="tip-key">→</span></div>
+                    <div class="tip-row"><span>序号可复制</span><span class="tip-key">点击</span></div>
+                </div>
+            </button>
+        </div>
+
+        <script>
+            // ===== 浏览器增强功能 =====
+
+            function toggleWideMode() {
+                document.body.classList.toggle('wide-mode');
+                var isWide = document.body.classList.contains('wide-mode');
+                try { localStorage.setItem('trendradar-wide-mode', isWide ? '1' : '0'); } catch(e) {}
+                var btn = document.querySelector('.toggle-wide-btn');
+                if (btn) btn.textContent = isWide ? '⊡' : '⛶';
+                initTabVisibility();
+                initCollapseVisibility();
+                initStandaloneTabVisibility();
+            }
+
+            function toggleDarkMode() {
+                var isDark = document.body.classList.toggle('dark-mode');
+                try { localStorage.setItem('trendradar-dark-mode', isDark ? '1' : '0'); } catch(e) {}
+                var btn = document.querySelector('.toggle-dark-btn');
+                if (btn) btn.textContent = isDark ? '☀' : '☽';
+            }
+
+            function initTabs() {
+                var tabBar = document.querySelector('.tab-bar');
+                if (!tabBar) return;
+                var tabs = tabBar.querySelectorAll('.tab-btn');
+                var groups = document.querySelectorAll('.word-group[data-tab-index]');
+                initTabVisibility();
+
+                function activateTab(index) {
+                    tabs.forEach(function(t) { t.classList.remove('active'); });
+                    if (index === 'all') {
+                        var allBtn = tabBar.querySelector('[data-tab-index="all"]');
+                        if (allBtn) allBtn.classList.add('active');
+                        groups.forEach(function(g) { g.style.display = ''; });
+                        try { history.replaceState(null, '', '#all'); } catch(e) {}
+                        return;
+                    }
+                    var idx = parseInt(index);
+                    tabs.forEach(function(t) {
+                        if (parseInt(t.dataset.tabIndex) === idx) t.classList.add('active');
+                    });
+                    if (document.body.classList.contains('wide-mode') && !tabBar.classList.contains('tab-hidden')) {
+                        groups.forEach(function(g) {
+                            g.style.display = (parseInt(g.dataset.tabIndex) === idx) ? '' : 'none';
                         });
                     }
-                    
-                    group.querySelectorAll('.news-item').forEach(item => {
-                        const rect = item.getBoundingClientRect();
+                    try { history.replaceState(null, '', '#tab-' + idx); } catch(e) {}
+                }
+
+                tabs.forEach(function(tab) {
+                    tab.addEventListener('click', function() {
+                        var idx = tab.dataset.tabIndex;
+                        activateTab(idx === 'all' ? 'all' : parseInt(idx));
+                    });
+                });
+
+                tabBar.addEventListener('keydown', function(e) {
+                    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                        var tabsArr = Array.from(tabs);
+                        var ci = tabsArr.findIndex(function(t) { return t.classList.contains('active'); });
+                        var dir = e.key === 'ArrowRight' ? 1 : -1;
+                        var ni = Math.max(0, Math.min(tabsArr.length - 1, ci + dir));
+                        var nt = tabsArr[ni];
+                        activateTab(nt.dataset.tabIndex === 'all' ? 'all' : parseInt(nt.dataset.tabIndex));
+                        nt.focus();
+                        e.preventDefault();
+                    }
+                });
+
+                var hash = window.location.hash;
+                if (hash === '#all') { activateTab('all'); }
+                else if (hash.indexOf('#tab-') === 0) { activateTab(parseInt(hash.replace('#tab-', ''))); }
+                else { activateTab(0); }
+            }
+
+            function initTabVisibility() {
+                var tabBar = document.querySelector('.tab-bar');
+                if (!tabBar) return;
+                var groups = document.querySelectorAll('.word-group[data-tab-index]');
+                var isWide = document.body.classList.contains('wide-mode');
+                if (!isWide || groups.length <= 2) {
+                    // tabBar.classList.add('tab-hidden');
+                    groups.forEach(function(g) { g.style.display = ''; });
+                } else {
+                    // tabBar.classList.remove('tab-hidden');
+                    var activeTab = tabBar.querySelector('.tab-btn.active');
+                    if (activeTab) { activeTab.click(); }
+                    else {
+                        var firstTab = tabBar.querySelector('.tab-btn');
+                        if (firstTab) firstTab.click();
+                    }
+                }
+            }
+
+            function handleSearch(query) {
+                query = query.toLowerCase();
+                document.querySelectorAll('.news-item').forEach(function(item) {
+                    var title = (item.querySelector('.news-title') || {}).textContent || '';
+                    item.style.display = (!query || title.toLowerCase().indexOf(query) !== -1) ? '' : 'none';
+                });
+                document.querySelectorAll('.rss-item').forEach(function(item) {
+                    var title = (item.querySelector('.rss-title') || {}).textContent || '';
+                    item.style.display = (!query || title.toLowerCase().indexOf(query) !== -1) ? '' : 'none';
+                });
+            }
+
+            function initBackToTop() {
+                var fabBar = document.querySelector('.fab-bar');
+                if (!fabBar) return;
+                window.addEventListener('scroll', function() {
+                    fabBar.classList.toggle('visible', window.scrollY > 300);
+                });
+            }
+
+            function initCollapse() {
+                document.querySelectorAll('.word-header').forEach(function(header) {
+                    header.addEventListener('click', function() {
+                        var tabBar = document.querySelector('.tab-bar');
+                        if (document.body.classList.contains('wide-mode') && tabBar && !tabBar.classList.contains('tab-hidden')) return;
+                        var group = header.closest('.word-group');
+                        if (group) group.classList.toggle('collapsed');
+                    });
+                });
+                initCollapseVisibility();
+            }
+
+            function initCollapseVisibility() {
+                var headers = document.querySelectorAll('.word-header');
+                var tabBar = document.querySelector('.tab-bar');
+                var isTabMode = document.body.classList.contains('wide-mode') && tabBar && !tabBar.classList.contains('tab-hidden');
+                headers.forEach(function(h) {
+                    if (isTabMode) { h.classList.remove('collapsible'); }
+                    else { h.classList.add('collapsible'); }
+                });
+                if (isTabMode) {
+                    document.querySelectorAll('.word-group.collapsed').forEach(function(g) {
+                        g.classList.remove('collapsed');
+                    });
+                }
+            }
+
+            // 独立展示区 Tab 切换
+            function initStandaloneTabs() {
+                var tabBar = document.querySelector('.standalone-tab-bar');
+                if (!tabBar) return;
+                var groups = document.querySelectorAll('.standalone-group[data-standalone-tab]');
+                var btns = tabBar.querySelectorAll('.tab-btn[data-standalone-tab]');
+
+                function activateStandaloneTab(val) {
+                    btns.forEach(function(b) {
+                        var bVal = b.getAttribute('data-standalone-tab');
+                        b.classList.toggle('active', bVal === String(val));
+                    });
+                    groups.forEach(function(g) {
+                        var gVal = g.getAttribute('data-standalone-tab');
+                        g.style.display = (val === 'all' || gVal === String(val)) ? '' : 'none';
+                    });
+                }
+
+                btns.forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        activateStandaloneTab(btn.getAttribute('data-standalone-tab'));
+                    });
+                });
+
+                // 初始状态
+                initStandaloneTabVisibility();
+            }
+
+            function initStandaloneTabVisibility() {
+                var tabBar = document.querySelector('.standalone-tab-bar');
+                if (!tabBar) return;
+                var groups = document.querySelectorAll('.standalone-group[data-standalone-tab]');
+                var isWide = document.body.classList.contains('wide-mode');
+                if (!isWide || groups.length <= 1) {
+                    // tabBar.classList.add('tab-hidden');
+                    groups.forEach(function(g) { g.style.display = ''; });
+                } else {
+                    // tabBar.classList.remove('tab-hidden');
+                    var activeBtn = tabBar.querySelector('.tab-btn.active');
+                    if (activeBtn) activeBtn.click();
+                    else { var first = tabBar.querySelector('.tab-btn'); if (first) first.click(); }
+                }
+            }
+
+            function prepareForScreenshot() {
+                var state = {
+                    wasWide: document.body.classList.contains('wide-mode'),
+                    hiddenGroups: []
+                };
+                document.body.classList.remove('wide-mode');
+                state.wasDark = document.body.classList.contains('dark-mode');
+                document.body.classList.remove('dark-mode');
+                document.querySelectorAll('.word-group[data-tab-index]').forEach(function(g, i) {
+                    if (g.style.display === 'none') {
+                        state.hiddenGroups.push(i);
+                        g.style.display = '';
+                    }
+                });
+                state.hiddenStandaloneGroups = [];
+                document.querySelectorAll('.standalone-group[data-standalone-tab]').forEach(function(g, i) {
+                    if (g.style.display === 'none') {
+                        state.hiddenStandaloneGroups.push(i);
+                        g.style.display = '';
+                    }
+                });
+                document.querySelectorAll('.tab-bar, .standalone-tab-bar, .search-bar, .fab-bar, .toggle-wide-btn').forEach(function(el) {
+                    el.dataset.prevDisplay = el.style.display || '';
+                    el.style.display = 'none';
+                });
+                document.querySelectorAll('.toggle-dark-btn').forEach(function(el) {
+                    el.dataset.prevDisplay = el.style.display || ''; el.style.display = 'none';
+                });
+                document.querySelectorAll('.reading-progress').forEach(function(el) { el.style.display = 'none'; });
+                document.querySelectorAll('.header-watermark').forEach(function(el) { el.style.display = 'none'; });
+                return state;
+            }
+
+            function restoreAfterScreenshot(state) {
+                if (state.wasWide) document.body.classList.add('wide-mode');
+                if (state.wasDark) document.body.classList.add('dark-mode');
+                var groups = document.querySelectorAll('.word-group[data-tab-index]');
+                state.hiddenGroups.forEach(function(i) {
+                    if (groups[i]) groups[i].style.display = 'none';
+                });
+                var standaloneGroups = document.querySelectorAll('.standalone-group[data-standalone-tab]');
+                if (state.hiddenStandaloneGroups) {
+                    state.hiddenStandaloneGroups.forEach(function(i) {
+                        if (standaloneGroups[i]) standaloneGroups[i].style.display = 'none';
+                    });
+                }
+                document.querySelectorAll('.tab-bar, .standalone-tab-bar, .search-bar, .fab-bar, .toggle-wide-btn').forEach(function(el) {
+                    el.style.display = el.dataset.prevDisplay || '';
+                    delete el.dataset.prevDisplay;
+                });
+                document.querySelectorAll('.toggle-dark-btn').forEach(function(el) {
+                    el.style.display = el.dataset.prevDisplay || ''; delete el.dataset.prevDisplay;
+                });
+                document.querySelectorAll('.reading-progress').forEach(function(el) { el.style.display = ''; });
+                document.querySelectorAll('.reading-progress').forEach(function(el) { el.style.display = ''; });
+                document.querySelectorAll('.header-watermark').forEach(function(el) { el.style.display = ''; });
+                initTabVisibility();
+                initCollapseVisibility();
+                initStandaloneTabVisibility();
+                var fabBar = document.querySelector('.fab-bar');
+                if (fabBar && window.scrollY > 300) fabBar.classList.add('visible');
+            }
+
+            // ===== 截图功能 =====
+
+            async function saveAsImage() {
+                const button = event.target;
+                const originalText = button.textContent;
+
+                try {
+                    button.textContent = '生成中...';
+                    button.disabled = true;
+                    window.scrollTo(0, 0);
+
+                    // 等待页面稳定
+                    await new Promise(resolve => setTimeout(resolve, 200));
+
+                    // 截图前准备：切回窄屏布局
+                    var screenshotState = prepareForScreenshot();
+
+                    // 截图前隐藏按钮
+                    const buttons = document.querySelector('.save-buttons');
+                    buttons.style.visibility = 'hidden';
+
+                    // 再次等待确保按钮完全隐藏
+                    await new Promise(resolve => setTimeout(resolve, 100));
+
+                    const container = document.querySelector('.container');
+
+                    const canvas = await html2canvas(container, {
+                        backgroundColor: '#ffffff',
+                        scale: 1.5,
+                        useCORS: true,
+                        allowTaint: false,
+                        imageTimeout: 10000,
+                        removeContainer: false,
+                        foreignObjectRendering: false,
+                        logging: false,
+                        width: container.offsetWidth,
+                        height: container.offsetHeight,
+                        x: 0,
+                        y: 0,
+                        scrollX: 0,
+                        scrollY: 0,
+                        windowWidth: window.innerWidth,
+                        windowHeight: window.innerHeight
+                    });
+
+                    buttons.style.visibility = 'visible';
+                    restoreAfterScreenshot(screenshotState);
+
+                    const link = document.createElement('a');
+                    const now = new Date();
+                    const filename = `TrendRadar_热点新闻分析_${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}.png`;
+
+                    link.download = filename;
+                    link.href = canvas.toDataURL('image/png', 1.0);
+
+                    // 触发下载
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    button.textContent = '保存成功!';
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.disabled = false;
+                    }, 2000);
+
+                } catch (error) {
+                    const buttons = document.querySelector('.save-buttons');
+                    buttons.style.visibility = 'visible';
+                    restoreAfterScreenshot(screenshotState);
+                    button.textContent = '保存失败';
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.disabled = false;
+                    }, 2000);
+                }
+            }
+
+            async function saveAsMultipleImages() {
+                const button = event.target;
+                const originalText = button.textContent;
+                const container = document.querySelector('.container');
+                const scale = 1.5;
+                const maxHeight = 5000 / scale;
+                var screenshotState2 = prepareForScreenshot();
+
+                try {
+                    button.textContent = '分析中...';
+                    button.disabled = true;
+
+                    // 获取所有可能的分割元素
+                    const newsItems = Array.from(container.querySelectorAll('.news-item'));
+                    const wordGroups = Array.from(container.querySelectorAll('.word-group'));
+                    const newSection = container.querySelector('.new-section');
+                    const errorSection = container.querySelector('.error-section');
+                    const header = container.querySelector('.header');
+                    const footer = container.querySelector('.footer');
+
+                    // 计算元素位置和高度
+                    const containerRect = container.getBoundingClientRect();
+                    const elements = [];
+
+                    // 添加header作为必须包含的元素
+                    elements.push({
+                        type: 'header',
+                        element: header,
+                        top: 0,
+                        bottom: header.offsetHeight,
+                        height: header.offsetHeight
+                    });
+
+                    // 添加错误信息（如果存在）
+                    if (errorSection) {
+                        const rect = errorSection.getBoundingClientRect();
                         elements.push({
-                            type: 'news-item',
+                            type: 'error',
+                            element: errorSection,
                             top: rect.top - containerRect.top,
                             bottom: rect.bottom - containerRect.top,
                             height: rect.height
                         });
+                    }
+
+                    // 按word-group分组处理news-item
+                    wordGroups.forEach(group => {
+                        const groupRect = group.getBoundingClientRect();
+                        const groupNewsItems = group.querySelectorAll('.news-item');
+
+                        // 添加word-group的header部分
+                        const wordHeader = group.querySelector('.word-header');
+                        if (wordHeader) {
+                            const headerRect = wordHeader.getBoundingClientRect();
+                            elements.push({
+                                type: 'word-header',
+                                element: wordHeader,
+                                parent: group,
+                                top: groupRect.top - containerRect.top,
+                                bottom: headerRect.bottom - containerRect.top,
+                                height: headerRect.height
+                            });
+                        }
+
+                        // 添加每个news-item
+                        groupNewsItems.forEach(item => {
+                            const rect = item.getBoundingClientRect();
+                            elements.push({
+                                type: 'news-item',
+                                element: item,
+                                parent: group,
+                                top: rect.top - containerRect.top,
+                                bottom: rect.bottom - containerRect.top,
+                                height: rect.height
+                            });
+                        });
                     });
-                });
-                
-                const footerRect = footer.getBoundingClientRect();
-                elements.push({
-                    type: 'footer',
-                    top: footerRect.top - containerRect.top,
-                    bottom: footerRect.bottom - containerRect.top,
-                    height: footer.offsetHeight
-                });
-                
-                const segments = [];
-                let currentSegment = { start: 0, end: 0, height: 0 };
-                let headerHeight = header.offsetHeight;
-                currentSegment.height = headerHeight;
-                
-                for (let i = 1; i < elements.length; i++) {
-                    const element = elements[i];
-                    const potentialHeight = element.bottom - currentSegment.start;
-                    
-                    if (potentialHeight > maxHeight && currentSegment.height > headerHeight) {
-                        currentSegment.end = elements[i - 1].bottom;
+
+                    // 添加新增新闻部分
+                    if (newSection) {
+                        const rect = newSection.getBoundingClientRect();
+                        elements.push({
+                            type: 'new-section',
+                            element: newSection,
+                            top: rect.top - containerRect.top,
+                            bottom: rect.bottom - containerRect.top,
+                            height: rect.height
+                        });
+                    }
+
+                    // 添加footer
+                    const footerRect = footer.getBoundingClientRect();
+                    elements.push({
+                        type: 'footer',
+                        element: footer,
+                        top: footerRect.top - containerRect.top,
+                        bottom: footerRect.bottom - containerRect.top,
+                        height: footer.offsetHeight
+                    });
+
+                    // 计算分割点
+                    const segments = [];
+                    let currentSegment = { start: 0, end: 0, height: 0, includeHeader: true };
+                    let headerHeight = header.offsetHeight;
+                    currentSegment.height = headerHeight;
+
+                    for (let i = 1; i < elements.length; i++) {
+                        const element = elements[i];
+                        const potentialHeight = element.bottom - currentSegment.start;
+
+                        // 检查是否需要创建新分段
+                        if (potentialHeight > maxHeight && currentSegment.height > headerHeight) {
+                            // 在前一个元素结束处分割
+                            currentSegment.end = elements[i - 1].bottom;
+                            segments.push(currentSegment);
+
+                            // 开始新分段
+                            currentSegment = {
+                                start: currentSegment.end,
+                                end: 0,
+                                height: element.bottom - currentSegment.end,
+                                includeHeader: false
+                            };
+                        } else {
+                            currentSegment.height = potentialHeight;
+                            currentSegment.end = element.bottom;
+                        }
+                    }
+
+                    // 添加最后一个分段
+                    if (currentSegment.height > 0) {
+                        currentSegment.end = container.offsetHeight;
                         segments.push(currentSegment);
-                        
-                        currentSegment = {
-                            start: currentSegment.end,
-                            end: 0,
-                            height: element.bottom - currentSegment.end
-                        };
-                    } else {
-                        currentSegment.height = potentialHeight;
-                        currentSegment.end = element.bottom;
                     }
-                }
-                
-                if (currentSegment.height > 0) {
-                    currentSegment.end = container.offsetHeight;
-                    segments.push(currentSegment);
-                }
-                
-                button.textContent = `生成中 (0/${segments.length})...`;
-                
-                const buttons = document.querySelector('.save-buttons');
-                buttons.style.visibility = 'hidden';
-                
-                const images = [];
-                for (let i = 0; i < segments.length; i++) {
-                    const segment = segments[i];
-                    button.textContent = `生成中 (${i + 1}/${segments.length})...`;
-                    
-                    const tempContainer = document.createElement('div');
-                    tempContainer.style.cssText = `
-                        position: absolute;
-                        left: -9999px;
-                        top: 0;
-                        width: ${container.offsetWidth}px;
-                        background: white;
-                    `;
-                    
-                    const clonedContainer = container.cloneNode(true);
-                    const clonedButtons = clonedContainer.querySelector('.save-buttons');
-                    if (clonedButtons) {
-                        clonedButtons.style.display = 'none';
+
+                    button.textContent = `生成中 (0/${segments.length})...`;
+
+                    // 隐藏保存按钮
+                    const buttons = document.querySelector('.save-buttons');
+                    buttons.style.visibility = 'hidden';
+
+                    // 为每个分段生成图片
+                    const images = [];
+                    for (let i = 0; i < segments.length; i++) {
+                        const segment = segments[i];
+                        button.textContent = `生成中 (${i + 1}/${segments.length})...`;
+
+                        // 创建临时容器用于截图
+                        const tempContainer = document.createElement('div');
+                        tempContainer.style.cssText = `
+                            position: absolute;
+                            left: -9999px;
+                            top: 0;
+                            width: ${container.offsetWidth}px;
+                            background: white;
+                        `;
+                        tempContainer.className = 'container';
+
+                        // 克隆容器内容
+                        const clonedContainer = container.cloneNode(true);
+
+                        // 移除克隆内容中的保存按钮
+                        const clonedButtons = clonedContainer.querySelector('.save-buttons');
+                        if (clonedButtons) {
+                            clonedButtons.style.display = 'none';
+                        }
+
+                        tempContainer.appendChild(clonedContainer);
+                        document.body.appendChild(tempContainer);
+
+                        // 等待DOM更新
+                        await new Promise(resolve => setTimeout(resolve, 100));
+
+                        // 使用html2canvas截取特定区域
+                        const canvas = await html2canvas(clonedContainer, {
+                            backgroundColor: '#ffffff',
+                            scale: scale,
+                            useCORS: true,
+                            allowTaint: false,
+                            imageTimeout: 10000,
+                            logging: false,
+                            width: container.offsetWidth,
+                            height: segment.end - segment.start,
+                            x: 0,
+                            y: segment.start,
+                            windowWidth: window.innerWidth,
+                            windowHeight: window.innerHeight
+                        });
+
+                        images.push(canvas.toDataURL('image/png', 1.0));
+
+                        // 清理临时容器
+                        document.body.removeChild(tempContainer);
                     }
-                    
-                    tempContainer.appendChild(clonedContainer);
-                    document.body.appendChild(tempContainer);
-                    
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    
-                    const canvas = await html2canvas(clonedContainer, {
-                        backgroundColor: '#ffffff',
-                        scale: scale,
-                        useCORS: true,
-                        allowTaint: false,
-                        imageTimeout: 10000,
-                        logging: false,
-                        width: container.offsetWidth,
-                        height: segment.end - segment.start,
-                        x: 0,
-                        y: segment.start,
-                        windowWidth: window.innerWidth,
-                        windowHeight: window.innerHeight
-                    });
-                    
-                    images.push(canvas.toDataURL('image/png', 1.0));
-                    document.body.removeChild(tempContainer);
+
+                    // 恢复按钮显示
+                    buttons.style.visibility = 'visible';
+
+                    // 下载所有图片
+                    const now = new Date();
+                    const baseFilename = `TrendRadar_热点新闻分析_${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
+
+                    for (let i = 0; i < images.length; i++) {
+                        const link = document.createElement('a');
+                        link.download = `${baseFilename}_part${i + 1}.png`;
+                        link.href = images[i];
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+
+                        // 延迟一下避免浏览器阻止多个下载
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                    }
+
+                    button.textContent = `已保存 ${segments.length} 张图片!`;
+                    restoreAfterScreenshot(screenshotState2);
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.disabled = false;
+                    }, 2000);
+
+                } catch (error) {
+                    console.error('分段保存失败:', error);
+                    const buttons = document.querySelector('.save-buttons');
+                    buttons.style.visibility = 'visible';
+                    restoreAfterScreenshot(screenshotState2);
+                    button.textContent = '保存失败';
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.disabled = false;
+                    }, 2000);
                 }
-                
-                buttons.style.visibility = 'visible';
-                
-                const now = new Date();
-                const baseFilename = `TrendRadar_热点新闻分析_${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
-                
-                for (let i = 0; i < images.length; i++) {
-                    const link = document.createElement('a');
-                    link.download = `${baseFilename}_part${i + 1}.png`;
-                    link.href = images[i];
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                }
-                
-                button.textContent = `已保存 ${segments.length} 张图片!`;
-                setTimeout(() => {
-                    button.textContent = originalText;
-                    button.disabled = false;
-                }, 2000);
-                
-            } catch (error) {
-                console.error('分段保存失败:', error);
-                const buttons = document.querySelector('.save-buttons');
-                buttons.style.visibility = 'visible';
-                button.textContent = '保存失败';
-                setTimeout(() => {
-                    button.textContent = originalText;
-                    button.disabled = false;
-                }, 2000);
             }
-        }
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            window.scrollTo(0, 0);
-        });
-    </script>
-</body>
-</html>
+
+
+            // App Shell Navigation
+            document.body.dataset.partition = 'overview';
+            document.querySelectorAll('.main-nav-item').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.main-nav-item').forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                    document.body.dataset.partition = this.dataset.partition;
+                    window.scrollTo({top: 0, behavior: 'smooth'});
+                });
+            });
+
+            // Tab Expand
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('tab-expand-btn')) {
+                    var btn = e.target;
+                    var tabBar = btn.closest('.tab-bar');
+                    var isExpanded = btn.dataset.expandChips === 'true';
+                    if (isExpanded) {
+                        tabBar.querySelectorAll('.hidden-chip.revealed').forEach(el => el.classList.remove('revealed'));
+                        btn.dataset.expandChips = 'false';
+                        btn.textContent = '+ ' + (tabBar.querySelectorAll('.tab-btn').length - 1 - tabBar.querySelectorAll('.tab-expand-btn').length);
+                    } else {
+                        tabBar.querySelectorAll('.hidden-chip').forEach(el => el.classList.add('revealed'));
+                        btn.dataset.expandChips = 'true';
+                        btn.textContent = '收起';
+                    }
+                }
+            });
+
+            // View More
+            window.toggleViewMore = function(btn) {
+                var container = btn.previousElementSibling;
+                var isExpanded = btn.dataset.expanded === 'true';
+                if (isExpanded) {
+                    container.querySelectorAll('.news-item, .rss-item').forEach((el, idx) => {
+                        if (idx >= 5) el.style.display = 'none';
+                    });
+                    btn.dataset.expanded = 'false';
+                    btn.textContent = '查看更多 (' + (container.querySelectorAll('.news-item, .rss-item').length - 5) + ')';
+                } else {
+                    container.querySelectorAll('.news-item, .rss-item').forEach(el => el.style.display = 'flex');
+                    btn.dataset.expanded = 'true';
+                    btn.textContent = '收起';
+                }
+            };
+
+            document.addEventListener('DOMContentLoaded', function() {
+                window.scrollTo(0, 0);
+
+                // 自动检测宽屏模式
+                var savedMode = null;
+                try { savedMode = localStorage.getItem('trendradar-wide-mode'); } catch(e) {}
+                if (savedMode === '1' || (savedMode === null && window.innerWidth > 768)) {
+                    document.body.classList.add('wide-mode');
+                    var btn = document.querySelector('.toggle-wide-btn');
+                    if (btn) btn.textContent = '⊡';
+                }
+
+                // 暗色模式恢复 (默认开启)
+                var savedDark = null;
+                try { savedDark = localStorage.getItem('trendradar-dark-mode'); } catch(e) {}
+                if (savedDark === '1' || savedDark === null) {
+                    document.body.classList.add('dark-mode');
+                    var darkBtn = document.querySelector('.toggle-dark-btn');
+                    if (darkBtn) darkBtn.textContent = '☀';
+                }
+
+                // 启用搜索栏
+                var searchBar = document.querySelector('.search-bar');
+                if (searchBar) searchBar.style.display = 'block';
+
+                // 初始化增强功能
+                initTabs();
+                initBackToTop();
+                initCollapse();
+                initStandaloneTabs();
+
+                // 键盘快捷键
+                document.addEventListener('keydown', function(e) {
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+                    var helpBtn = document.querySelector('.fab-help');
+                    switch(e.key) {
+                        case '?':
+                            if (helpBtn) {
+                                helpBtn.classList.toggle('show-tip');
+                                var fabBar = document.querySelector('.fab-bar');
+                                if (fabBar) fabBar.classList.add('visible');
+                            }
+                            break;
+                        case 'Escape':
+                            if (helpBtn) helpBtn.classList.remove('show-tip');
+                            break;
+                        case 'w': case 'W': toggleWideMode(); break;
+                        case 'd': case 'D': toggleDarkMode(); break;
+                        case '/': e.preventDefault(); var si = document.querySelector('.search-input'); if (si) si.focus(); break;
+                    }
+                });
+
+                // 阅读进度条
+                var progressBar = document.querySelector('.reading-progress');
+                if (progressBar) {
+                    window.addEventListener('scroll', function() {
+                        var h = document.documentElement.scrollHeight - window.innerHeight;
+                        progressBar.style.width = (h > 0 ? (window.scrollY / h * 100) : 0) + '%';
+                    });
+                }
+
+                // 一键复制：hover 时数字变复制图标
+                var copySvg = '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M5 11H3.5A1.5 1.5 0 012 9.5v-7A1.5 1.5 0 013.5 1h7A1.5 1.5 0 0112 2.5V5"/></svg>';
+                var checkSvg = '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="#22c55e" stroke-width="2"><path d="M3 8.5l3.5 3.5 7-7"/></svg>';
+                document.querySelectorAll('.news-item .news-number').forEach(function(numEl) {
+                    var item = numEl.closest('.news-item');
+                    var titleEl = item ? item.querySelector('.news-title a') : null;
+                    if (!titleEl) return;
+                    var numText = numEl.textContent.trim();
+                    numEl.innerHTML = '<span class="num-text">' + numText + '</span><span class="copy-icon">' + copySvg + '</span>';
+                    numEl.title = '点击复制标题和链接';
+                    numEl.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        var text = titleEl.textContent.trim() + ' ' + titleEl.href;
+                        navigator.clipboard.writeText(text).then(function() {
+                            numEl.classList.add('copied');
+                            numEl.querySelector('.copy-icon').innerHTML = checkSvg;
+                            setTimeout(function() {
+                                numEl.classList.remove('copied');
+                                numEl.querySelector('.copy-icon').innerHTML = copySvg;
+                            }, 1500);
+                        });
+                    });
+                });
+
+
+
+                // Header watermark 鼠标跟随揭示
+                (function() {
+                    var header = document.querySelector('.header');
+                    var watermark = document.querySelector('.header-watermark');
+                    if (!header || !watermark) return;
+
+                    var radius = 100;
+
+                    header.addEventListener('mousemove', function(e) {
+                        var rect = watermark.getBoundingClientRect();
+                        var x = e.clientX - rect.left;
+                        var y = e.clientY - rect.top;
+                        var maskVal = 'radial-gradient(circle ' + radius + 'px at ' + x + 'px ' + y + 'px, rgba(0,0,0,1) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0) 100%)';
+                        watermark.style.webkitMaskImage = maskVal;
+                        watermark.style.maskImage = maskVal;
+                        watermark.style.color = 'rgba(255, 255, 255, 0.25)';
+                    });
+
+                    header.addEventListener('mouseleave', function() {
+                        watermark.style.webkitMaskImage = 'radial-gradient(circle 0px at 50% 50%, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)';
+                        watermark.style.maskImage = 'radial-gradient(circle 0px at 50% 50%, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)';
+                        watermark.style.color = 'rgba(255, 255, 255, 0.15)';
+                    });
+                })();
+            });
+        </script>
+    </body>
+    </html>
+    

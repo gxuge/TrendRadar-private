@@ -63,1330 +63,470 @@ def render_html_content(
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>热点新闻分析</title>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-        <style>
-            * { box-sizing: border-box; }
+                        <style>
+            /* ==========================================================================
+               1. Design Tokens (CSS Variables) - PREMIUM THEME
+               ========================================================================== */
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+            :root {
+                /* Light Mode: Apple Clean & Minimal */
+                --bg-body: #f5f5f7;
+                --bg-card: rgba(255, 255, 255, 0.7);
+                --bg-card-solid: #ffffff;
+                --bg-card-hover: rgba(255, 255, 255, 0.9);
+                
+                --text-main: #1d1d1f;
+                --text-muted: #86868b;
+                --text-light: #a1a1a6;
+                
+                --primary: #0071e3;
+                --primary-hover: #0077ed;
+                --primary-bg: rgba(0, 113, 227, 0.08);
+                
+                --border-color: rgba(0, 0, 0, 0.04);
+                --border-card: rgba(255, 255, 255, 0.5);
+                
+                --danger: #ff3b30;
+                --danger-bg: rgba(255, 59, 48, 0.08);
+                --warning: #ff9500;
+                --warning-bg: rgba(255, 149, 0, 0.08);
+                --success: #34c759;
+                --success-bg: rgba(52, 199, 89, 0.08);
+                
+                --header-bg: rgba(255, 255, 255, 0.7);
+                --header-text: #1d1d1f;
+                
+                --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.04);
+                --shadow-hover: 0 10px 32px rgba(0, 0, 0, 0.08);
+                --glow: none;
+                
+                --glass-blur: blur(20px);
+                
+                --font-base: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+                --font-mono: 'SFMono-Regular', Consolas, monospace;
+            }
+
+            body.dark-mode {
+                /* Dark Mode: Vercel/Linear Tech & Glow */
+                --bg-body: #000000;
+                --bg-card: rgba(17, 17, 17, 0.7);
+                --bg-card-solid: #111111;
+                --bg-card-hover: rgba(26, 26, 26, 0.9);
+                
+                --text-main: #ededed;
+                --text-muted: #a1a1aa;
+                --text-light: #71717a;
+                
+                --primary: #3b82f6;
+                --primary-hover: #60a5fa;
+                --primary-bg: rgba(59, 130, 246, 0.15);
+                
+                --border-color: rgba(255, 255, 255, 0.08);
+                --border-card: rgba(255, 255, 255, 0.05);
+                
+                --danger: #ef4444;
+                --danger-bg: rgba(239, 68, 68, 0.15);
+                --warning: #f59e0b;
+                --warning-bg: rgba(245, 158, 11, 0.15);
+                --success: #10b981;
+                --success-bg: rgba(16, 185, 129, 0.15);
+                
+                --header-bg: rgba(10, 10, 10, 0.7);
+                --header-text: #ffffff;
+                
+                --shadow-card: 0 0 0 1px rgba(255,255,255,0.05), 0 4px 24px rgba(0, 0, 0, 0.5);
+                --shadow-hover: 0 0 0 1px rgba(255,255,255,0.1), 0 10px 40px rgba(0, 0, 0, 0.7);
+                --glow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+            }
+
+            /* ==========================================================================
+               2. Animations
+               ========================================================================== */
+            @keyframes fadeInUp {
+                from { opacity: 0; transform: translateY(16px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            
+            @keyframes pulseGlow {
+                0% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); }
+                50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.4); }
+                100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); }
+            }
+
+            .animate-fade-in {
+                animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                opacity: 0;
+            }
+
+            /* Create delays for children */
+            .stagger-1 { animation-delay: 0.1s; }
+            .stagger-2 { animation-delay: 0.2s; }
+            .stagger-3 { animation-delay: 0.3s; }
+            .stagger-4 { animation-delay: 0.4s; }
+
+            /* ==========================================================================
+               3. Base & Layout
+               ========================================================================== */
+            * { box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
             body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-                margin: 0;
-                padding: 16px;
-                background: #fafafa;
-                color: #333;
-                line-height: 1.5;
+                font-family: var(--font-base);
+                margin: 0; padding: 24px 16px;
+                background: var(--bg-body); color: var(--text-main);
+                line-height: 1.6; font-size: 14px;
+                transition: background-color 0.4s ease, color 0.4s ease;
             }
+            a { color: var(--primary); text-decoration: none; transition: color 0.2s; }
+            a:hover { color: var(--primary-hover); }
 
-            .container {
-                max-width: 600px;
-                margin: 0 auto;
-                background: white;
-                border-radius: 12px;
-                overflow: hidden;
-                box-shadow: 0 2px 16px rgba(0,0,0,0.06);
-            }
+            .container { max-width: 760px; margin: 0 auto; transition: max-width 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+            body.wide-mode .container { max-width: 1280px; }
 
+            /* ==========================================================================
+               4. Header (Glassmorphism & Glow)
+               ========================================================================== */
             .header {
-                background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-                color: white;
-                padding: 32px 24px;
-                text-align: center;
-                position: relative;
-                overflow: hidden;
+                background: var(--header-bg);
+                backdrop-filter: var(--glass-blur);
+                -webkit-backdrop-filter: var(--glass-blur);
+                border: 1px solid var(--border-card);
+                border-radius: 20px;
+                padding: 40px 32px;
+                text-align: center; position: relative; overflow: hidden;
+                box-shadow: var(--shadow-card);
+                margin-bottom: 32px;
+                box-shadow: var(--glow), var(--shadow-card);
+                transition: all 0.4s ease;
+            }
+            
+            /* Add subtle gradient orbs in dark mode for that linear glow */
+            body.dark-mode .header::before {
+                content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+                background: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15), transparent 50%);
+                pointer-events: none; z-index: 0;
             }
 
             .header-watermark {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                font-size: clamp(40px, 8vw, 80px);
-                font-weight: 900;
-                letter-spacing: 0.05em;
-                color: rgba(255, 255, 255, 0.15);
-                pointer-events: none;
-                z-index: 1;
-                white-space: nowrap;
-                -webkit-mask-image: radial-gradient(circle 0px at 50% 50%, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
-                mask-image: radial-gradient(circle 0px at 50% 50%, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
-                transition: -webkit-mask-image 0.3s ease, mask-image 0.3s ease;
-                user-select: none;
+                position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                font-size: clamp(60px, 10vw, 120px); font-weight: 800; letter-spacing: -0.02em;
+                color: rgba(150, 150, 150, 0.03); pointer-events: none; z-index: 1; user-select: none;
             }
-
-            .save-buttons {
-                position: absolute;
-                top: 16px;
-                right: 16px;
-                display: flex;
-                gap: 8px;
-                z-index: 10;
-            }
-
-            .save-btn-group {
-                position: relative;
-                display: flex;
-            }
-
-            .save-btn {
-                background: rgba(255, 255, 255, 0.2);
-                border: 1px solid rgba(255, 255, 255, 0.3);
-                color: white;
-                padding: 10px 18px;
-                border-radius: 6px 0 0 6px;
-                cursor: pointer;
-                font-size: 13px;
-                font-weight: 500;
-                transition: all 0.2s ease;
-                backdrop-filter: blur(10px);
-                white-space: nowrap;
-                min-height: 38px;
-                border-right: none;
-            }
-
-            .save-btn:hover {
-                background: rgba(255, 255, 255, 0.3);
-            }
-
-            .save-btn:active {
-                transform: translateY(0);
-            }
-
-            .save-btn:disabled {
-                opacity: 0.6;
-                cursor: not-allowed;
-            }
-
-            .save-dropdown-trigger {
-                background: rgba(255, 255, 255, 0.2);
-                border: 1px solid rgba(255, 255, 255, 0.3);
-                color: white;
-                padding: 10px 10px;
-                border-radius: 0 6px 6px 0;
-                cursor: pointer;
-                font-size: 11px;
-                transition: all 0.2s ease;
-                backdrop-filter: blur(10px);
-                min-height: 38px;
-                display: flex;
-                align-items: center;
-            }
-
-            .save-dropdown-trigger:hover {
-                background: rgba(255, 255, 255, 0.35);
-            }
-
-            .save-dropdown-menu {
-                position: absolute;
-                top: 100%;
-                right: 0;
-                margin-top: 4px;
-                background: rgba(30, 30, 50, 0.92);
-                backdrop-filter: blur(16px);
-                border: 1px solid rgba(255, 255, 255, 0.15);
-                border-radius: 8px;
-                padding: 4px;
-                min-width: 140px;
-                opacity: 0;
-                visibility: hidden;
-                transform: translateY(-4px);
-                transition: all 0.2s ease;
-                box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-            }
-
-            .save-btn-group:hover .save-dropdown-menu,
-            .save-dropdown-menu:hover {
-                opacity: 1;
-                visibility: visible;
-                transform: translateY(0);
-            }
-
-            .save-dropdown-item {
-                display: block;
-                width: 100%;
-                padding: 9px 14px;
-                background: none;
-                border: none;
-                color: white;
-                font-size: 13px;
-                cursor: pointer;
-                border-radius: 5px;
-                text-align: left;
-                transition: background 0.15s;
-                white-space: nowrap;
-            }
-
-            .save-dropdown-item:hover {
-                background: rgba(255, 255, 255, 0.15);
-            }
-
-            .dropdown-icon {
-                width: 14px;
-                height: 14px;
-                margin-right: 8px;
-                vertical-align: -2px;
-                flex-shrink: 0;
-            }
+            body.dark-mode .header-watermark { color: rgba(255, 255, 255, 0.02); }
 
             .header-title {
-                font-size: 22px;
-                font-weight: 700;
-                margin: 0 0 20px 0;
-                position: relative;
-                z-index: 2;
+                font-size: 28px; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 32px 0;
+                position: relative; z-index: 2; color: var(--header-text);
             }
-
+            
             .header-info {
-                position: relative;
-                z-index: 2;
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 16px;
-                font-size: 14px;
-                opacity: 0.95;
+                position: relative; z-index: 2; display: flex; flex-wrap: wrap; justify-content: center; gap: 40px;
             }
+            .info-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+            .info-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+            .info-value { font-weight: 700; font-size: 24px; color: var(--header-text); font-family: var(--font-mono); }
 
-            .info-item {
-                text-align: center;
-            }
-
-            .info-label {
-                display: block;
-                font-size: 12px;
-                opacity: 0.8;
-                margin-bottom: 4px;
-            }
-
-            .info-value {
-                font-weight: 600;
-                font-size: 16px;
-            }
-
-            .content {
-                padding: 24px;
-            }
-
-            .word-group {
-                margin-bottom: 40px;
-            }
-
-            .word-group:first-child {
-                margin-top: 0;
-            }
-
-            .word-header {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                margin-bottom: 20px;
-                padding-bottom: 8px;
-                border-bottom: 1px solid #f0f0f0;
-            }
-
-            .word-info {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-            }
-
-            .word-name {
-                font-size: 17px;
-                font-weight: 600;
-                color: #1a1a1a;
-            }
-
-            .word-count {
-                color: #666;
-                font-size: 13px;
-                font-weight: 500;
-            }
-
-            .word-count.hot { color: #dc2626; font-weight: 600; }
-            .word-count.warm { color: #ea580c; font-weight: 600; }
-
-            .word-index {
-                color: #999;
-                font-size: 12px;
-            }
-
-            .news-item {
-                margin-bottom: 20px;
-                padding: 16px 0;
-                border-bottom: 1px solid #f5f5f5;
-                position: relative;
-                display: flex;
-                gap: 12px;
-                align-items: center;
-            }
-
-            .news-item:last-child {
-                border-bottom: none;
-            }
-
-            .news-item.new::after {
-                content: "NEW";
-                position: absolute;
-                top: 12px;
-                right: 0;
-                background: #fbbf24;
-                color: #92400e;
-                font-size: 9px;
-                font-weight: 700;
-                padding: 3px 6px;
-                border-radius: 4px;
-                letter-spacing: 0.5px;
-            }
-
-            .news-number {
-                color: #999;
-                font-size: 13px;
-                font-weight: 600;
-                min-width: 20px;
-                text-align: center;
-                flex-shrink: 0;
-                background: #f8f9fa;
-                border-radius: 50%;
-                width: 24px;
-                height: 24px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                align-self: flex-start;
-                margin-top: 8px;
-                position: relative;
-                cursor: pointer;
-                transition: background 0.15s, color 0.15s;
-            }
-            .news-number .num-text { transition: opacity 0.15s; }
-            .news-number .copy-icon {
-                position: absolute;
-                opacity: 0;
-                transition: opacity 0.15s;
-            }
-            .news-item:hover .news-number .num-text { opacity: 0; }
-            .news-item:hover .news-number .copy-icon { opacity: 1; }
-            .news-item:hover .news-number {
-                background: #eef2ff;
-                color: #4f46e5;
-            }
-            .news-number.copied {
-                background: #dcfce7 !important;
-            }
-            .news-number.copied .num-text { opacity: 0 !important; }
-            .news-number.copied .copy-icon { opacity: 1 !important; }
-            body.dark-mode .news-item:hover .news-number {
-                background: #2a2a5a;
-                color: #8ab4f8;
-            }
-            body.dark-mode .news-number.copied {
-                background: #14532d !important;
-            }
-
-            .news-content {
-                flex: 1;
-                min-width: 0;
-                padding-right: 40px;
-            }
-
-            .news-item.new .news-content {
-                padding-right: 50px;
-            }
-
-            .news-header {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                margin-bottom: 8px;
-                flex-wrap: wrap;
-            }
-
-            .source-name {
-                color: #666;
-                font-size: 12px;
-                font-weight: 500;
-            }
-
-            .keyword-tag {
-                color: #2563eb;
-                font-size: 12px;
-                font-weight: 500;
-                background: #eff6ff;
-                padding: 2px 6px;
-                border-radius: 4px;
-            }
-
-            .rank-num {
-                color: #fff;
-                background: #6b7280;
-                font-size: 10px;
-                font-weight: 700;
-                padding: 2px 6px;
-                border-radius: 10px;
-                min-width: 18px;
-                text-align: center;
-            }
-
-            .rank-num.top { background: #dc2626; }
-            .rank-num.high { background: #ea580c; }
-
-            .time-info {
-                color: #999;
-                font-size: 11px;
-            }
-
-            .count-info {
-                color: #059669;
-                font-size: 11px;
-                font-weight: 500;
-            }
-
-            .news-title {
-                font-size: 15px;
-                line-height: 1.4;
-                color: #1a1a1a;
-                margin: 0;
-            }
-
-            .news-link {
-                color: #2563eb;
-                text-decoration: none;
-            }
-
-            .news-link:hover {
-                text-decoration: underline;
-            }
-
-            .news-link:visited {
-                color: #7c3aed;
-            }
-
-            /* 通用区域分割线样式 */
-            .section-divider {
-                margin-top: 32px;
-                padding-top: 24px;
-                border-top: 2px solid #e5e7eb;
-            }
-
-            /* 热榜统计区样式 */
-            .hotlist-section {
-                /* 默认无边框，由 section-divider 动态添加 */
-            }
-
-            .events-section {
-                margin-top: 8px;
-            }
-
-            .events-section-header {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                margin-bottom: 14px;
-            }
-
-            .events-section-title {
-                color: #1a1a1a;
-                font-size: 16px;
-                font-weight: 600;
-            }
-
-            .events-section-count {
-                color: #666;
-                font-size: 12px;
-                font-weight: 500;
-            }
-
-            .events-grid {
-                display: grid;
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
-
-            .events-more {
-                margin-top: 12px;
-                border: 1px dashed #d1d5db;
-                border-radius: 10px;
-                background: #fafafa;
-                padding: 8px 10px;
-            }
-
-            .events-more summary {
-                cursor: pointer;
-                color: #374151;
-                font-size: 12px;
-                font-weight: 600;
-                list-style: none;
-                outline: none;
-            }
-
-            .events-more summary::-webkit-details-marker {
-                display: none;
-            }
-
-            .events-more summary::before {
-                content: ">";
-                display: inline-block;
-                margin-right: 6px;
-                font-size: 10px;
-                transition: transform 0.2s ease;
-            }
-
-            .events-more[open] summary::before {
-                transform: rotate(90deg);
-            }
-
-            .events-more-grid {
-                margin-top: 10px;
-                display: grid;
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
-
-            .event-card {
-                border: 1px solid #e5e7eb;
-                border-radius: 10px;
-                padding: 12px 14px;
-                background: #fcfcff;
-            }
-
-            .event-card-header {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 10px;
-            }
-
-            .event-card-title {
-                font-size: 14px;
-                line-height: 1.45;
-                color: #1f2937;
-                margin: 0;
-                font-weight: 600;
-                flex: 1;
-                min-width: 0;
-            }
-
-            .event-card-title .news-link {
-                font-weight: 600;
-            }
-
-            .event-hot {
-                flex-shrink: 0;
-                font-size: 11px;
-                color: #b45309;
-                background: #fef3c7;
-                border-radius: 10px;
-                padding: 3px 8px;
-                font-weight: 600;
-            }
-
-            .event-meta {
-                margin-top: 8px;
-                display: flex;
-                flex-wrap: wrap;
-                gap: 6px;
-            }
-
-            .event-badge {
-                font-size: 11px;
-                color: #374151;
-                background: #f3f4f6;
-                border-radius: 999px;
-                padding: 2px 8px;
-            }
-
-            .event-related {
-                margin-top: 8px;
-                color: #6b7280;
-                font-size: 12px;
-                line-height: 1.45;
-            }
-
-            .event-brief,
-            .event-why,
-            .event-impact {
-                margin-top: 8px;
-                color: #374151;
-                font-size: 12px;
-                line-height: 1.5;
-            }
-
-            .event-why {
-                color: #4b5563;
-            }
-
-            .event-impact {
-                color: #1f2937;
-                font-weight: 500;
-            }
-
-            .new-section {
-                margin-top: 40px;
-                padding-top: 24px;
-            }
-
-            .new-section-title {
-                color: #1a1a1a;
-                font-size: 16px;
-                font-weight: 600;
-                margin: 0 0 20px 0;
-            }
-
-            .new-source-group {
+            /* ==========================================================================
+               5. Universal Premium Card System
+               ========================================================================== */
+            .card {
+                background: var(--bg-card);
+                backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+                border-radius: 16px;
+                border: 1px solid var(--border-card);
                 margin-bottom: 24px;
-            }
-
-            .new-source-title {
-                color: #666;
-                font-size: 13px;
-                font-weight: 500;
-                margin: 0 0 12px 0;
-                padding-bottom: 6px;
-                border-bottom: 1px solid #f5f5f5;
-            }
-
-            .new-item {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                padding: 8px 0;
-                border-bottom: 1px solid #f9f9f9;
-            }
-
-            .new-item:last-child {
-                border-bottom: none;
-            }
-
-            .new-item-number {
-                color: #999;
-                font-size: 12px;
-                font-weight: 600;
-                min-width: 18px;
-                text-align: center;
-                flex-shrink: 0;
-                background: #f8f9fa;
-                border-radius: 50%;
-                width: 20px;
-                height: 20px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .new-item-rank {
-                color: #fff;
-                background: #6b7280;
-                font-size: 10px;
-                font-weight: 700;
-                padding: 3px 6px;
-                border-radius: 8px;
-                min-width: 20px;
-                text-align: center;
-                flex-shrink: 0;
-            }
-
-            .new-item-rank.top { background: #dc2626; }
-            .new-item-rank.high { background: #ea580c; }
-
-            .new-item-content {
-                flex: 1;
-                min-width: 0;
-            }
-
-            .new-item-title {
-                font-size: 14px;
-                line-height: 1.4;
-                color: #1a1a1a;
-                margin: 0;
-            }
-
-            .error-section {
-                background: #fef2f2;
-                border: 1px solid #fecaca;
-                border-radius: 8px;
-                padding: 16px;
-                margin-bottom: 24px;
-            }
-
-            .error-title {
-                color: #dc2626;
-                font-size: 14px;
-                font-weight: 600;
-                margin: 0 0 8px 0;
-            }
-
-            .error-list {
-                list-style: none;
-                padding: 0;
-                margin: 0;
-            }
-
-            .error-item {
-                color: #991b1b;
-                font-size: 13px;
-                padding: 2px 0;
-                font-family: 'SF Mono', Consolas, monospace;
-            }
-
-            .footer {
-                margin-top: 32px;
-                padding: 20px 24px;
-                background: #f8f9fa;
-                border-top: 1px solid #e5e7eb;
-                text-align: center;
-            }
-
-            .footer-content {
-                font-size: 13px;
-                color: #6b7280;
-                line-height: 1.6;
-            }
-
-            .footer-link {
-                color: #4f46e5;
-                text-decoration: none;
-                font-weight: 500;
-                transition: color 0.2s ease;
-            }
-
-            .footer-link:hover {
-                color: #7c3aed;
-                text-decoration: underline;
-            }
-
-            .project-name {
-                font-weight: 600;
-                color: #374151;
-            }
-
-            @media (max-width: 480px) {
-                body { padding: 12px; }
-                .header { padding: 24px 20px; }
-                .content { padding: 20px; }
-                .footer { padding: 16px 20px; }
-                .header-info { grid-template-columns: 1fr; gap: 12px; }
-                .news-header { gap: 6px; }
-                .news-content { padding-right: 45px; }
-                .news-item { gap: 8px; }
-                .new-item { gap: 8px; }
-                .news-number { width: 20px; height: 20px; font-size: 12px; }
-                .save-buttons {
-                    position: static;
-                    margin-bottom: 16px;
-                    display: flex;
-                    gap: 8px;
-                    justify-content: center;
-                    width: 100%;
-                }
-                .save-btn-group {
-                    flex: 1;
-                }
-                .save-btn {
-                    width: 100%;
-                    border-radius: 6px 0 0 6px;
-                }
-            }
-
-            /* RSS 订阅内容样式 */
-            .rss-section {
-                margin-top: 32px;
-                padding-top: 24px;
-            }
-
-            .rss-section-header {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                margin-bottom: 20px;
-            }
-
-            .rss-section-title {
-                font-size: 18px;
-                font-weight: 600;
-                color: #059669;
-            }
-
-            .rss-section-count {
-                color: #6b7280;
-                font-size: 14px;
-            }
-
-            .feed-group {
-                margin-bottom: 24px;
-            }
-
-            .feed-group:last-child {
-                margin-bottom: 0;
-            }
-
-            .feed-header {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                margin-bottom: 12px;
-                padding-bottom: 8px;
-                border-bottom: 2px solid #10b981;
-            }
-
-            .feed-name {
-                font-size: 15px;
-                font-weight: 600;
-                color: #059669;
-            }
-
-            .feed-count {
-                color: #666;
-                font-size: 13px;
-                font-weight: 500;
-            }
-
-            .rss-item {
-                margin-bottom: 12px;
-                padding: 14px;
-                background: #f0fdf4;
-                border-radius: 8px;
-                border-left: 3px solid #10b981;
-            }
-
-            .rss-item:last-child {
-                margin-bottom: 0;
-            }
-
-            .rss-meta {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                margin-bottom: 6px;
-                flex-wrap: wrap;
-            }
-
-            .rss-time {
-                color: #6b7280;
-                font-size: 12px;
-            }
-
-            .rss-author {
-                color: #059669;
-                font-size: 12px;
-                font-weight: 500;
-            }
-
-            .rss-title {
-                font-size: 14px;
-                line-height: 1.5;
-                margin-bottom: 6px;
-            }
-
-            .rss-link {
-                color: #1f2937;
-                text-decoration: none;
-                font-weight: 500;
-            }
-
-            .rss-link:hover {
-                color: #059669;
-                text-decoration: underline;
-            }
-
-            .rss-summary {
-                font-size: 13px;
-                color: #6b7280;
-                line-height: 1.5;
-                margin: 0;
-                display: -webkit-box;
-                -webkit-line-clamp: 2;
-                -webkit-box-orient: vertical;
+                box-shadow: var(--shadow-card), var(--glow);
+                transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
                 overflow: hidden;
             }
-
-            /* 独立展示区样式 - 复用热点词汇统计区样式 */
-            .standalone-section {
-                margin-top: 32px;
-                padding-top: 24px;
+            .card:hover {
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-hover), var(--glow);
+                background: var(--bg-card-hover);
             }
-
-            .standalone-section-header {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                margin-bottom: 20px;
+            
+            .card-header {
+                padding: 20px 24px; border-bottom: 1px solid var(--border-color);
+                display: flex; align-items: center; justify-content: space-between;
+                background: transparent;
             }
+            .card-title { font-size: 18px; font-weight: 700; color: var(--text-main); margin: 0; letter-spacing: -0.01em;}
+            .card-meta { font-size: 13px; color: var(--text-muted); font-weight: 500; display: flex; align-items: center; gap: 6px;}
+            .card-body { padding: 0; }
+            
+            body.wide-mode .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+            body.wide-mode .grid-2col .card { margin-bottom: 0; }
 
-            .standalone-section-title {
-                font-size: 18px;
-                font-weight: 600;
-                color: #059669;
+            /* List Items */
+            .list-item {
+                display: flex; gap: 16px; padding: 16px 24px;
+                border-bottom: 1px solid var(--border-color); transition: background 0.2s;
+                align-items: flex-start;
             }
+            .list-item:last-child { border-bottom: none; }
+            .list-item:hover { background: rgba(0,0,0,0.02); }
+            body.dark-mode .list-item:hover { background: rgba(255,255,255,0.02); }
 
-            .standalone-section-count {
-                color: #6b7280;
-                font-size: 14px;
+            .item-number {
+                width: 28px; height: 28px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+                background: var(--border-color); color: var(--text-muted); border-radius: 8px;
+                font-size: 12px; font-weight: 700; font-family: var(--font-mono);
+                cursor: pointer; position: relative; overflow: hidden;
+                transition: all 0.2s;
             }
+            .list-item:hover .item-number { background: var(--primary-bg); color: var(--primary); transform: scale(1.05); }
+            .item-number.copied { background: var(--success) !important; color: white !important; transform: scale(1.1); }
+            
+            .item-number .num-text { transition: opacity 0.2s, transform 0.2s; }
+            .item-number .copy-icon { position: absolute; opacity: 0; transition: opacity 0.2s, transform 0.2s; transform: scale(0.5); }
+            .list-item:hover .item-number .num-text { opacity: 0; transform: scale(1.5); }
+            .list-item:hover .item-number .copy-icon { opacity: 1; transform: scale(1); }
+            .item-number.copied .num-text { opacity: 0 !important; }
+            .item-number.copied .copy-icon { opacity: 1 !important; transform: scale(1) !important; }
 
-            .standalone-group {
-                margin-bottom: 40px;
+            .item-content { flex: 1; min-width: 0; padding-top: 2px;}
+            .item-header { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; align-items: center;}
+            .item-title { font-size: 15px; line-height: 1.5; margin: 0; color: var(--text-main); font-weight: 500;}
+
+            /* Modern Badges / Pills */
+            .badge { 
+                padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; 
+                white-space: nowrap; letter-spacing: 0.02em; display: inline-flex; align-items: center;
             }
+            .badge-neutral { background: var(--border-color); color: var(--text-muted); }
+            .badge-primary { background: var(--primary-bg); color: var(--primary); }
+            .badge-danger { background: var(--danger-bg); color: var(--danger); }
+            .badge-warning { background: var(--warning-bg); color: var(--warning); }
+            
+            .text-sm-muted { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+            .text-sm-success { font-size: 12px; color: var(--success); font-weight: 600; }
 
-            .standalone-group:last-child {
-                margin-bottom: 0;
-            }
+            /* ==========================================================================
+               6. Section Specifics
+               ========================================================================== */
+            /* Event Cards */
+            .event-card { padding: 24px; border-bottom: 1px solid var(--border-color); }
+            .event-card:last-child { border-bottom: none; }
+            .event-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 12px; }
+            .event-title { font-size: 16px; font-weight: 700; margin: 0; color: var(--text-main); line-height: 1.5; letter-spacing: -0.01em;}
+            .event-meta-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+            .event-desc { margin-top: 12px; font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+            .event-desc strong { color: var(--text-main); font-weight: 600; }
 
-            .standalone-header {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                margin-bottom: 20px;
-                padding-bottom: 8px;
-                border-bottom: 1px solid #f0f0f0;
-            }
+            /* AI Section */
+            .ai-section { background: linear-gradient(135deg, var(--primary-bg) 0%, transparent 100%); }
+            .ai-block { background: var(--bg-card-solid); margin-bottom: 16px; padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+            .ai-block:last-child { margin-bottom: 0; }
+            .ai-block-title { color: var(--primary); font-weight: 700; margin-bottom: 12px; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+            .ai-block-content { font-size: 14px; color: var(--text-main); white-space: pre-wrap; line-height: 1.7; }
 
-            .standalone-name {
-                font-size: 17px;
-                font-weight: 600;
-                color: #1a1a1a;
-            }
-
-            .standalone-count {
-                color: #666;
-                font-size: 13px;
-                font-weight: 500;
-            }
-
-            /* AI 分析区块样式 */
-            .ai-section {
-                margin-top: 32px;
-                padding: 24px;
-                background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-                border-radius: 12px;
-                border: 1px solid #bae6fd;
-            }
-
-            .ai-section-header {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                margin-bottom: 20px;
-            }
-
-            .ai-section-title {
-                font-size: 18px;
-                font-weight: 600;
-                color: #0369a1;
-            }
-
-            .ai-section-badge {
-                background: #0ea5e9;
-                color: white;
-                font-size: 11px;
-                font-weight: 600;
-                padding: 3px 8px;
-                border-radius: 4px;
-            }
-
-            .ai-block {
-                margin-bottom: 16px;
-                padding: 16px;
-                background: white;
-                border-radius: 8px;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            }
-
-            .ai-block:last-child {
-                margin-bottom: 0;
-            }
-
-            .ai-block-title {
-                font-size: 14px;
-                font-weight: 600;
-                color: #0369a1;
-                margin-bottom: 8px;
-            }
-
-            .ai-block-content {
-                font-size: 14px;
-                line-height: 1.6;
-                color: #334155;
-                white-space: pre-wrap;
-            }
-
-            .ai-error {
-                padding: 16px;
-                background: #fef2f2;
-                border: 1px solid #fecaca;
-                border-radius: 8px;
-                color: #991b1b;
-                font-size: 14px;
-            }
-
-            .ai-info {
-                padding: 16px;
-                background: #f0f9ff;
-                border: 1px solid #bae6fd;
-                border-radius: 8px;
-                color: #0369a1;
-                font-size: 14px;
-            }
-
-            /* ===== 浏览器增强样式（渐进增强，邮件客户端无影响） ===== */
-
-            /* 宽屏模式 - 基础 */
-            body.wide-mode .container { max-width: 1200px; }
-            body.wide-mode .header-info { grid-template-columns: repeat(4, 1fr); }
-            body.wide-mode .content { padding: 32px 40px; }
-
-            /* 宽屏模式 - RSS feed-group 两列 */
-            body.wide-mode .rss-feeds-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 24px;
-            }
-            body.wide-mode .feed-group { margin-bottom: 0; }
-
-            /* 宽屏模式 - AI 分析区两列网格 */
-            body.wide-mode .ai-section .ai-blocks-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 16px;
-            }
-            body.wide-mode .ai-block { margin-bottom: 0; }
-
-            /* 宽屏模式 - 新增热点多列 */
-            body.wide-mode .new-section .new-sources-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 24px;
-            }
-            body.wide-mode .new-source-group { margin-bottom: 0; }
-
-            /* 宽屏模式 - 独立展示区多列 */
-            body.wide-mode .standalone-section .standalone-groups-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 24px;
-            }
-            body.wide-mode .standalone-group { margin-bottom: 0; }
-
-            /* Tab 栏 */
+            /* Tabs - Modern Pill Style */
             .tab-bar {
-                display: none;
-                overflow-x: auto;
-                white-space: nowrap;
-                padding: 8px 0 12px 0;
-                margin-bottom: 20px;
-                border-bottom: 2px solid #e5e7eb;
-                -webkit-overflow-scrolling: touch;
-                scrollbar-width: thin;
-                position: sticky;
-                top: 0;
-                background: white;
-                z-index: 10;
-                gap: 4px;
+                display: none; overflow-x: auto; white-space: nowrap;
+                padding: 4px; gap: 8px; margin-bottom: 24px;
+                -webkit-overflow-scrolling: touch; scrollbar-width: none;
+                background: var(--bg-card); border-radius: 100px;
+                border: 1px solid var(--border-card);
+                box-shadow: var(--shadow-card);
+                backdrop-filter: blur(10px);
             }
-            body.wide-mode .tab-bar { display: flex; }
+            .tab-bar::-webkit-scrollbar { display: none; }
+            body.wide-mode .tab-bar { display: inline-flex; max-width: 100%; }
             body.wide-mode .tab-bar.tab-hidden { display: none; }
-
+            
             .tab-btn {
-                display: inline-flex;
-                align-items: center;
-                gap: 6px;
-                padding: 8px 16px;
-                border: none;
-                background: #f3f4f6;
-                color: #6b7280;
-                border-radius: 8px 8px 0 0;
-                cursor: pointer;
-                font-size: 13px;
-                font-weight: 500;
-                white-space: nowrap;
-                transition: all 0.2s ease;
-                flex-shrink: 0;
+                padding: 8px 16px; background: transparent; color: var(--text-muted);
+                border: none; border-radius: 100px; font-size: 13px; font-weight: 600;
+                cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+                display: inline-flex; align-items: center; gap: 8px;
             }
-            .tab-btn:hover { background: #e5e7eb; color: #374151; }
-            .tab-btn.active { background: #4f46e5; color: white; }
-            .tab-count {
-                font-size: 11px;
-                background: rgba(0,0,0,0.1);
-                padding: 1px 6px;
-                border-radius: 10px;
-            }
-            .tab-btn.active .tab-count { background: rgba(255,255,255,0.3); }
-            .tab-bar::-webkit-scrollbar { height: 4px; }
-            .tab-bar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 2px; }
-            .tab-bar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+            .tab-btn:hover { color: var(--text-main); background: var(--border-color); }
+            .tab-btn.active { background: var(--text-main); color: var(--bg-body); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+            body.dark-mode .tab-btn.active { box-shadow: 0 2px 12px rgba(255,255,255,0.1); }
+            .tab-count { background: var(--border-color); padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+            .tab-btn.active .tab-count { background: var(--bg-body); color: var(--text-main); }
 
-            /* 搜索栏 */
-            .search-bar { display: none; padding: 0 0 16px 0; }
+            /* Glassmorphic Action Buttons */
+            .save-buttons { position: absolute; top: 24px; right: 24px; display: flex; gap: 12px; z-index: 10; }
+            .btn-action {
+                background: rgba(150, 150, 150, 0.1); border: 1px solid rgba(150, 150, 150, 0.2); color: var(--header-text);
+                padding: 8px 16px; border-radius: 12px; cursor: pointer; font-size: 13px; font-weight: 600;
+                backdrop-filter: blur(12px); transition: all 0.3s; display: flex; align-items: center; justify-content: center;
+                min-height: 36px;
+            }
+            .btn-action:hover { background: rgba(150, 150, 150, 0.2); transform: translateY(-1px); }
+            
+            .save-btn-group { display: flex; position: relative; }
+            .save-btn-group .btn-action:first-child { border-radius: 12px 0 0 12px; border-right: none; }
+            .save-btn-group .btn-action:last-child { border-radius: 0 12px 12px 0; padding: 8px 10px; }
+            
+            .dropdown-menu {
+                position: absolute; top: 100%; right: 0; margin-top: 8px;
+                background: var(--bg-card-solid); border: 1px solid var(--border-color); border-radius: 12px;
+                box-shadow: var(--shadow-hover); padding: 6px; min-width: 140px;
+                opacity: 0; visibility: hidden; transform: translateY(-8px); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+            .save-btn-group:hover .dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+            .dropdown-item {
+                display: flex; align-items: center; width: 100%; padding: 10px 14px;
+                background: none; border: none; color: var(--text-main); font-size: 13px; font-weight: 500;
+                cursor: pointer; border-radius: 8px; text-align: left; transition: background 0.2s;
+            }
+            .dropdown-item:hover { background: var(--primary-bg); color: var(--primary); }
+            .dropdown-item svg { width: 16px; height: 16px; margin-right: 10px; stroke: currentColor; }
+
+            /* Modern Search Bar */
+            .search-bar { margin-bottom: 24px; display: none; }
             .search-input {
-                width: 100%;
-                padding: 10px 16px;
-                border: 1px solid #e5e7eb;
-                border-radius: 8px;
-                font-size: 14px;
-                outline: none;
-                transition: border-color 0.2s;
-                box-sizing: border-box;
+                width: 100%; padding: 16px 20px; background: var(--bg-card); border: 1px solid var(--border-color);
+                border-radius: 16px; color: var(--text-main); font-size: 15px;
+                outline: none; transition: all 0.3s; box-shadow: var(--shadow-card);
+                backdrop-filter: blur(10px);
             }
-            .search-input:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
-            .search-input::placeholder { color: #9ca3af; }
+            .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-bg); transform: translateY(-1px); }
 
-            /* 右下角悬浮工具栏 */
-            .fab-bar {
-                position: fixed;
-                bottom: 24px;
-                right: 24px;
-                display: flex;
-                flex-direction: column;
-                gap: 8px;
-                z-index: 100;
-                opacity: 0;
-                transform: translateY(10px);
-                transition: opacity 0.3s, transform 0.3s;
-                pointer-events: none;
+            /* Reading Progress */
+            .reading-progress {
+                position: fixed; top: 0; left: 0; width: 0; height: 4px;
+                background: linear-gradient(90deg, var(--primary), #8b5cf6); z-index: 9999;
+                transition: width 0.1s linear; border-radius: 0 2px 2px 0;
             }
-            .fab-bar.visible {
-                opacity: 1;
-                transform: translateY(0);
-                pointer-events: auto;
-            }
-            .fab-btn {
-                width: 40px;
-                height: 40px;
-                border-radius: 50%;
-                background: #4f46e5;
-                color: white;
-                border: none;
-                cursor: pointer;
-                font-size: 16px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-                transition: transform 0.2s, background 0.2s;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                position: relative;
-            }
-            .fab-btn:hover { transform: scale(1.1); background: #4338ca; }
-            body.dark-mode .fab-btn { background: #533483; }
-            body.dark-mode .fab-btn:hover { background: #6d28d9; }
+            
+            /* Error */
+            .error-section { background: var(--danger-bg); border: 1px solid rgba(239, 68, 68, 0.2); padding: 20px; border-radius: 16px; margin-bottom: 24px; }
+            .error-title { color: var(--danger); font-size: 14px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;}
+            .error-item { color: var(--danger); font-size: 13px; font-family: var(--font-mono); margin-left: 24px; padding: 4px 0;}
+            
+            /* Footer */
+            .footer { text-align: center; padding: 40px 0; color: var(--text-muted); font-size: 13px; font-weight: 500;}
 
-            /* 快捷键 tooltip */
-            .fab-tooltip {
-                position: absolute;
-                bottom: 0;
-                right: 52px;
-                background: rgba(30, 30, 50, 0.92);
-                backdrop-filter: blur(12px);
-                color: white;
-                border-radius: 10px;
-                padding: 12px 16px;
-                white-space: nowrap;
-                font-size: 12px;
-                line-height: 1.8;
-                box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-                border: 1px solid rgba(255,255,255,0.1);
-                opacity: 0;
-                visibility: hidden;
-                transform: translateY(6px);
-                transition: all 0.2s ease;
-                pointer-events: none;
-            }
-            .fab-btn:hover .fab-tooltip,
-            .fab-btn.show-tip .fab-tooltip {
-                opacity: 1;
-                visibility: visible;
-                transform: translateY(0);
-                pointer-events: auto;
-            }
-            .fab-tooltip .tip-row {
-                display: flex;
-                justify-content: space-between;
-                gap: 16px;
-                align-items: center;
-            }
-            .fab-tooltip .tip-key {
-                background: rgba(255,255,255,0.15);
-                border-radius: 3px;
-                padding: 1px 6px;
-                font-family: monospace;
-                font-size: 11px;
-                margin-left: 8px;
-            }
-
-            /* 折叠/展开 */
-            .collapse-icon {
-                display: none;
-                margin-right: 6px;
-                font-size: 12px;
-                color: #9ca3af;
-                transition: transform 0.2s;
-                user-select: none;
-            }
-            .word-header.collapsible { cursor: pointer; }
-            .word-header.collapsible .collapse-icon { display: inline; }
-            .word-header.collapsible:hover {
-                background: #f9fafb;
-                border-radius: 6px;
-                margin: 0 -8px 20px -8px;
-                padding: 8px;
-            }
-            .word-group.collapsed .news-item { display: none; }
+            /* Legacy hooks for JS (DO NOT RENAME) */
+            .events-more summary { cursor: pointer; font-size: 12px; color: var(--text-muted); font-weight: 600; outline: none; padding: 12px 24px; display: block; background: transparent; border-top: 1px solid var(--border-color); text-align: center; transition: background 0.2s; }
+            .events-more summary:hover { background: rgba(0,0,0,0.02); }
+            body.dark-mode .events-more summary:hover { background: rgba(255,255,255,0.02); }
+            .events-more summary::marker, .events-more summary::-webkit-details-marker { display: none; }
+            .word-group.collapsed .card-body { display: none; }
+            .word-header.collapsible { cursor: pointer; transition: background 0.2s; }
+            .word-header.collapsible:hover { background: rgba(0,0,0,0.02); }
+            body.dark-mode .word-header.collapsible:hover { background: rgba(255,255,255,0.02); }
+            .collapse-icon { font-size: 10px; margin-right: 8px; transition: transform 0.3s; display: inline-block; }
             .word-group.collapsed .collapse-icon { transform: rotate(-90deg); }
 
-            /* Tab 切换动画 */
-            body.wide-mode .word-group[data-tab-index] { animation: tabFadeIn 0.2s ease; }
-            @keyframes tabFadeIn {
-                from { opacity: 0; transform: translateY(8px); }
-                to { opacity: 1; transform: translateY(0); }
+            /* FAB Bar */
+            .fab-bar {
+                position: fixed; bottom: 32px; right: 32px; display: flex; flex-direction: column; gap: 12px;
+                z-index: 100; opacity: 0; transform: translateY(20px); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none;
             }
-
-            /* 宽屏切换按钮 */
-            .toggle-wide-btn {
-                background: rgba(255, 255, 255, 0.2);
-                border: 1px solid rgba(255, 255, 255, 0.3);
-                color: white;
-                padding: 10px 14px;
-                border-radius: 6px;
-                cursor: pointer;
-                font-size: 15px;
-                transition: all 0.2s ease;
-                backdrop-filter: blur(10px);
-                line-height: 1;
-                min-height: 38px;
+            .fab-bar.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+            .fab-btn {
+                width: 48px; height: 48px; border-radius: 24px; background: var(--bg-card-solid); color: var(--text-main);
+                border: 1px solid var(--border-color); cursor: pointer; font-size: 20px; box-shadow: var(--shadow-hover);
+                display: flex; align-items: center; justify-content: center; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             }
-            .toggle-wide-btn:hover {
-                background: rgba(255, 255, 255, 0.3);
-                border-color: rgba(255, 255, 255, 0.5);
-                transform: translateY(-1px);
-            }
-
-            /* 暗色模式 */
-            body.dark-mode {
-                background: #1a1a2e;
-                color: #e0e0e0;
-            }
-            body.dark-mode .container {
-                background: #16213e;
-                box-shadow: 0 2px 16px rgba(0,0,0,0.3);
-            }
-            body.dark-mode .header {
-                background: linear-gradient(135deg, #0f3460 0%, #533483 100%);
-            }
-            body.dark-mode .content {
-                background: #16213e;
-            }
-            body.dark-mode .word-header {
-                border-bottom-color: #2a2a4a;
-            }
-            body.dark-mode .word-header.collapsible:hover {
-                background: #1a1a3e;
-            }
-            body.dark-mode .news-item {
-                border-bottom-color: #2a2a4a;
-            }
-            body.dark-mode .news-title a {
-                color: #8ab4f8;
-            }
-            body.dark-mode .news-title a:visited {
-                color: #c58af9;
-            }
-            body.dark-mode .news-meta {
-                color: #888;
-            }
-            body.dark-mode .tab-bar {
-                background: #16213e;
-                border-bottom-color: #2a2a4a;
-            }
-            body.dark-mode .tab-btn {
-                color: #aaa;
-            }
-            body.dark-mode .tab-btn.active {
-                color: #8ab4f8;
-                border-bottom-color: #8ab4f8;
-            }
-            body.dark-mode .tab-btn:hover {
-                color: #ccc;
-                background: rgba(255,255,255,0.05);
-            }
-            body.dark-mode .search-input {
-                background: #1a1a3e;
-                border-color: #2a2a4a;
-                color: #e0e0e0;
-            }
-            body.dark-mode .search-input:focus {
-                border-color: #8ab4f8;
-            }
-            /* dark fab-btn 已在 .fab-btn 中处理 */
-            body.dark-mode .footer {
-                background: #0f3460;
-                color: rgba(255,255,255,0.7);
-            }
-            body.dark-mode .rss-item,
-            body.dark-mode .new-item,
-            body.dark-mode .standalone-item {
-                border-bottom-color: #2a2a4a;
-            }
-            body.dark-mode .rss-title a,
-            body.dark-mode .new-item a,
-            body.dark-mode .standalone-item a {
-                color: #8ab4f8;
-            }
-            body.dark-mode .ai-block {
-                background: #1a1a3e;
-                border-color: #2a2a4a;
-            }
-            body.dark-mode .info-value {
-                color: white;
-            }
-
-            /* 暗色模式切换按钮 */
-            .toggle-dark-btn {
-                background: rgba(255, 255, 255, 0.2);
-                border: 1px solid rgba(255, 255, 255, 0.3);
-                color: white;
-                padding: 10px 14px;
-                border-radius: 6px;
-                cursor: pointer;
-                font-size: 15px;
-                transition: all 0.2s ease;
-                backdrop-filter: blur(10px);
-                line-height: 1;
-                min-height: 38px;
-            }
-            .toggle-dark-btn:hover {
-                background: rgba(255, 255, 255, 0.3);
-                border-color: rgba(255, 255, 255, 0.5);
-                transform: translateY(-1px);
-            }
-
-            /* 快捷键面板已集成到 fab-tooltip */
-
-            /* 阅读进度条 */
-            .reading-progress {
-                position: fixed;
-                top: 0; left: 0;
-                width: 0;
-                height: 3px;
-                background: linear-gradient(90deg, #4f46e5, #7c3aed);
-                z-index: 9999;
-                transition: width 0.1s linear;
-            }
-            body.dark-mode .reading-progress {
-                background: linear-gradient(90deg, #8ab4f8, #c58af9);
-            }
-
-            /* 复制按钮样式已集成到 .news-number */
+            .fab-btn:hover { color: var(--primary); transform: translateY(-4px); box-shadow: 0 14px 40px rgba(0,0,0,0.15); }
 
 
-
-            /* 新上榜标记 */
-            .badge-new {
-                display: inline-block;
-                background: linear-gradient(135deg, #f43f5e, #ec4899);
-                color: white;
-                font-size: 10px;
+            /* New Partitions and App Shell Layout */
+            body { padding: 0; }
+            .container { padding: 0 16px; margin-top: 24px; }
+            .main-nav {
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                background: var(--bg-card);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-bottom: 1px solid var(--border-color);
+                padding: 12px 24px;
+                display: flex;
+                gap: 16px;
+                margin-bottom: 24px;
+                border-radius: 12px;
+                box-shadow: var(--shadow-card);
+            }
+            .main-nav-item {
+                padding: 8px 16px;
+                border-radius: 20px;
                 font-weight: 600;
-                padding: 1px 6px;
-                border-radius: 3px;
-                margin-left: 6px;
-                vertical-align: middle;
-                letter-spacing: 0.5px;
+                font-size: 14px;
+                cursor: pointer;
+                color: var(--text-muted);
+                transition: all 0.3s;
+                background: transparent;
+                border: none;
+                white-space: nowrap;
             }
-            body.dark-mode .badge-new {
-                background: linear-gradient(135deg, #be185d, #9333ea);
+            .main-nav-item.active { background: var(--primary); color: white; }
+            .main-nav-item:hover:not(.active) { background: var(--primary-bg); color: var(--primary); }
+
+            body[data-partition] .partition { display: none; }
+            body[data-partition="overview"] .partition-overview,
+            body[data-partition="overview"] .partition-hotlist,
+            body[data-partition="overview"] .partition-rss,
+            body[data-partition="overview"] .partition-standalone { display: block; }
+            
+            body[data-partition="overview"] .partition-hotlist .card:nth-of-type(n+4),
+            body[data-partition="overview"] .partition-rss .card:nth-of-type(n+4),
+            body[data-partition="overview"] .partition-standalone .card:nth-of-type(n+4) { display: none !important; }
+            body[data-partition="overview"] .tab-bar, 
+            body[data-partition="overview"] .view-more-btn { display: none !important; }
+
+            body[data-partition="hotlist"] .partition-hotlist { display: block; }
+            body[data-partition="rss"] .partition-rss { display: block; }
+            body[data-partition="standalone"] .partition-standalone { display: block; }
+            body[data-partition="ai_analysis"] .partition-ai_analysis { display: block; }
+
+            /* Tab Chip Override */
+            .tab-bar {
+                display: flex !important; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; padding: 0;
+                background: transparent; border: none; box-shadow: none; white-space: normal;
+                overflow: visible !important;
+            }
+            .tab-bar::-webkit-scrollbar { display: none; }
+            .tab-btn {
+                max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+                padding: 6px 12px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;
+                background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px;
+            }
+            .hidden-chip:not(.revealed) { display: none !important; }
+            .tab-expand-btn { background: var(--border-color); color: var(--text-main); font-weight: 600; cursor: pointer; }
+
+            /* Card Hierarchy */
+            .list-item { gap: 12px; padding: 12px 20px; border-bottom: 1px solid rgba(0,0,0,0.03); }
+            body.dark-mode .list-item { border-bottom: 1px solid rgba(255,255,255,0.03); }
+            .news-title, .rss-title {
+                display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+                font-size: 15px; font-weight: 600; color: var(--text-main); line-height: 1.5; margin-top: 4px;
+            }
+            .text-sm-muted { font-size: 12px; color: var(--text-light); }
+            .badge { padding: 2px 8px; font-size: 10px; }
+            
+            /* View More */
+            .view-more-btn {
+                width: 100%; padding: 12px; text-align: center; background: transparent;
+                border: none; color: var(--primary); font-size: 13px; font-weight: 600; cursor: pointer;
+                border-top: 1px solid rgba(0,0,0,0.03);
+            }
+            body.dark-mode .view-more-btn { border-top: 1px solid rgba(255,255,255,0.03); }
+            .view-more-btn:hover { background: var(--primary-bg); }
+
+            /* Responsive */
+            @media (max-width: 1024px) {
+                body.wide-mode .grid-2col, .grid-2col { grid-template-columns: 1fr !important; }
+                .main-nav { overflow-x: auto; white-space: nowrap; padding: 12px 16px; border-radius: 0; margin: 0 -16px 16px -16px; }
+                .tab-btn { max-width: none; }
+                .btn-action { min-height: 40px; padding: 8px 20px; }
+                .main-nav-item { padding: 10px 20px; font-size: 15px; }
+            }
+            @media (max-width: 640px) {
+                body { padding: 0; background: var(--bg-body); }
+                .container { border-radius: 0; }
+                .header { border-radius: 0; padding: 40px 24px; margin-bottom: 16px; border-left: none; border-right: none;}
+                .card { border-radius: 12px; margin: 0 12px 16px 12px; }
+                .info-value { font-size: 20px; }
+                .save-buttons { position: static; justify-content: center; margin-bottom: 24px; width: 100%; display: flex; }
+                .save-btn-group { flex: 1; }
+                .save-btn-group .btn-action:first-child { width: 100%; }
+                .tab-bar { padding: 4px; margin: 0 12px 16px 12px; display: flex; overflow-x: auto; max-width: calc(100% - 24px);}
             }
         </style>
     </head>
@@ -1458,7 +598,15 @@ def render_html_content(
                 </div>
             </div>
 
-            <div class="content">
+
+            <div class="main-nav">
+                <button class="main-nav-item active" data-partition="overview">总览</button>
+                <button class="main-nav-item" data-partition="hotlist">热榜</button>
+                <button class="main-nav-item" data-partition="rss">RSS订阅</button>
+                <button class="main-nav-item" data-partition="standalone">独立展示区</button>
+                <button class="main-nav-item" data-partition="ai_analysis">AI分析</button>
+            </div>
+            <div class="partitions-container">
                 <div class="search-bar">
                     <input type="text" class="search-input" placeholder="搜索新闻标题..." oninput="handleSearch(this.value)">
                 </div>"""
@@ -1508,48 +656,48 @@ def render_html_content(
                 title_html = title
 
             card_html += f"""
-                        <div class="event-card">
+                        <div class="event-card card">
                             <div class="event-card-header">
-                                <div class="event-card-title">{title_html}</div>
-                                <div class="event-hot">Score {total_score}</div>
+                                <h3 class="event-title">{title_html}</h3>
+                                <div class="badge badge-danger">Score {total_score}</div>
                             </div>
-                            <div class="event-meta">
-                                <span class="event-badge">Sources {source_count}</span>
-                                <span class="event-badge">Mentions {occurrence_count}</span>
-                                <span class="event-badge">Hot {hot_score}</span>
-                                <span class="event-badge">Spread {spread_score}</span>
-                                <span class="event-badge">Momentum {momentum_score}</span>
-                                <span class="event-badge">Authority {authority_score}</span>"""
+                            <div class="event-meta-group">
+                                <span class="badge badge-neutral">Sources {source_count}</span>
+                                <span class="badge badge-neutral">Mentions {occurrence_count}</span>
+                                <span class="badge badge-neutral">Hot {hot_score}</span>
+                                <span class="badge badge-neutral">Spread {spread_score}</span>
+                                <span class="badge badge-neutral">Momentum {momentum_score}</span>
+                                <span class="badge badge-neutral">Authority {authority_score}</span>"""
 
             for s in sources[:4]:
-                card_html += f'<span class="event-badge">{html_escape(s)}</span>'
+                card_html += f'<span class="badge badge-neutral">{html_escape(s)}</span>'
             for k in keywords[:3]:
-                card_html += f'<span class="event-badge">#{html_escape(k)}</span>'
+                card_html += f'<span class="badge badge-neutral">#{html_escape(k)}</span>'
 
             card_html += "</div>"
 
             if brief:
-                card_html += f'<div class="event-brief">Brief: {html_escape(brief)}</div>'
+                card_html += f'<div class="event-desc"><strong>Brief:</strong> {html_escape(brief)}</div>'
             if why_it_matters:
-                card_html += f'<div class="event-why">Why it matters: {html_escape(why_it_matters)}</div>'
+                card_html += f'<div class="event-desc"><strong>Why it matters:</strong> {html_escape(why_it_matters)}</div>'
             if impact:
-                card_html += f'<div class="event-impact">Impact: {html_escape(impact)}</div>'
+                card_html += f'<div class="event-desc"><strong>Impact:</strong> {html_escape(impact)}</div>'
 
             if related_titles:
                 related_safe = "; ".join(html_escape(x) for x in related_titles[:2])
-                card_html += f'<div class="event-related">Related: {related_safe}</div>'
+                card_html += f'<div class="event-desc"><strong>Related:</strong> {related_safe}</div>'
 
             card_html += """
                         </div>"""
             return card_html
 
         events_html += f"""
-                <div class="events-section">
+                <div class="events-section animate-fade-in stagger-2">
                     <div class="events-section-header">
                         <div class="events-section-title">Event Cards</div>
                         <div class="events-section-count">{len(event_clusters)} items</div>
                     </div>
-                    <div class="events-grid">"""
+                    <div class="events-grid grid-2col">"""
 
         for event in top_events:
             events_html += _render_event_card(event)
@@ -1561,7 +709,7 @@ def render_html_content(
             events_html += f"""
                     <details class="events-more">
                         <summary>More Events ({len(overflow_events)})</summary>
-                        <div class="events-more-grid">"""
+                        <div class="events-more-grid grid-2col">"""
             for event in overflow_events:
                 events_html += _render_event_card(event)
             events_html += """
@@ -1580,8 +728,13 @@ def render_html_content(
         for tab_i, tab_stat in enumerate(report_data["stats"]):
             escaped_tab_word = html_escape(tab_stat["word"])
             tab_count = tab_stat["count"]
-            tab_bar_html += f'<button class="tab-btn" data-tab-index="{tab_i}">{escaped_tab_word}<span class="tab-count">{tab_count}</span></button>'
-        tab_bar_html += '<button class="tab-btn" data-tab-index="all">全部</button>'
+            chip_class = "tab-btn"
+            if tab_i >= 8:
+                chip_class += " hidden-chip"
+            tab_bar_html += f'<button class="{chip_class}" data-tab-index="{tab_i}">{escaped_tab_word}<span class="tab-count">{tab_count}</span></button>'
+        if len(report_data["stats"]) > 8:
+            tab_bar_html += f'<button class="tab-btn tab-expand-btn" data-expand-chips="false">+ {len(report_data["stats"]) - 8}</button>'
+        tab_bar_html += '<button class="tab-btn hidden-chip" data-tab-index="all">全部</button>'
         tab_bar_html += '</div>'
 
         for i, stat in enumerate(report_data["stats"], 1):
@@ -1598,14 +751,12 @@ def render_html_content(
             escaped_word = html_escape(stat["word"])
 
             stats_html += f"""
-                <div class="word-group" data-tab-index="{i - 1}">
-                    <div class="word-header">
-                        <div class="word-info">
-                            <div class="word-name">{escaped_word}</div>
-                            <div class="word-count {count_class}">{count} 条</div>
-                        </div>
-                        <div class="word-index"><span class="collapse-icon">▼</span>{i}/{total_count}</div>
-                    </div>"""
+                <div class="word-group card" data-tab-index="{i - 1}">
+                    <div class="word-header card-header">
+                        <div class="card-title">{escaped_word}</div>
+                        <div class="card-meta"><span class="collapse-icon">▼</span>{count} 条 · {i}/{total_count}</div>
+                    </div>
+                    <div class="card-body"><div class="card-list-container">"""
 
             # 处理每个词组下的新闻标题，给每条新闻标上序号
             for j, title_data in enumerate(stat["titles"], 1):
@@ -1613,20 +764,20 @@ def render_html_content(
                 new_class = "new" if is_new else ""
 
                 stats_html += f"""
-                    <div class="news-item {new_class}">
-                        <div class="news-number">{j}</div>
-                        <div class="news-content">
-                            <div class="news-header">"""
+                    <div class="news-item list-item {new_class}" style="display: {'none' if j > 5 else 'flex'}">
+                        <div class="item-number news-number">{j}</div>
+                        <div class="item-content">
+                            <div class="item-header">"""
 
                 # 根据 display_mode 决定显示来源还是关键词
                 if display_mode == "keyword":
                     # keyword 模式：显示来源
-                    stats_html += f'<span class="source-name">{html_escape(title_data["source_name"])}</span>'
+                    stats_html += f'<span class="text-sm-muted">{html_escape(title_data["source_name"])}</span>'
                 else:
                     # platform 模式：显示关键词
                     matched_keyword = title_data.get("matched_keyword", "")
                     if matched_keyword:
-                        stats_html += f'<span class="keyword-tag">[{html_escape(matched_keyword)}]</span>'
+                        stats_html += f'<span class="text-sm-muted">[{html_escape(matched_keyword)}]</span>'
 
                 # 处理排名显示
                 ranks = title_data.get("ranks", [])
@@ -1660,17 +811,17 @@ def render_html_content(
                         .replace("]", "")
                     )
                     stats_html += (
-                        f'<span class="time-info">{html_escape(simplified_time)}</span>'
+                        f'<span class="text-sm-muted">{html_escape(simplified_time)}</span>'
                     )
 
                 # 处理出现次数
                 count_info = title_data.get("count", 1)
                 if count_info > 1:
-                    stats_html += f'<span class="count-info">{count_info}次</span>'
+                    stats_html += f'<span class="text-sm-success">{count_info}次</span>'
 
                 stats_html += """
                             </div>
-                            <div class="news-title">"""
+                            <div class="item-title news-title">"""
 
                 # 处理标题和链接
                 escaped_title = html_escape(title_data["title"])
@@ -1687,30 +838,36 @@ def render_html_content(
                         </div>
                     </div>"""
 
+
+            stats_html += '</div>'
+            if len(stat["titles"]) > 5:
+                stats_html += f'<button class="view-more-btn" onclick="toggleViewMore(this)">查看更多 ({len(stat["titles"]) - 5})</button>'
             stats_html += """
-                </div>"""
+                </div></div>"""
+
 
     # 给热榜统计添加外层包装
     if stats_html:
         stats_html = f"""
-                <div class="hotlist-section">{tab_bar_html}{stats_html}
+                <div class="hotlist-section animate-fade-in stagger-1">{tab_bar_html}{stats_html}
                 </div>"""
 
     # 生成新增新闻区域的HTML
     new_titles_html = ""
     if show_new_section and report_data["new_titles"]:
         new_titles_html += f"""
-                <div class="new-section">
+                <div class="new-section animate-fade-in stagger-3">
                     <div class="new-section-title">本次新增热点 (共 {report_data['total_new_count']} 条)</div>
-                    <div class="new-sources-grid">"""
+                    <div class="new-sources-grid grid-2col">"""
 
         for source_data in report_data["new_titles"]:
             escaped_source = html_escape(source_data["source_name"])
             titles_count = len(source_data["titles"])
 
             new_titles_html += f"""
-                    <div class="new-source-group">
-                        <div class="new-source-title">{escaped_source} · {titles_count}条</div>"""
+                    <div class="new-source-group card">
+                        <div class="card-header"><h3 class="card-title">{escaped_source} · {titles_count}条</h3></div>
+                        <div class="card-body"><div class="card-list-container">"""
 
             # 为新增新闻也添加序号
             for idx, title_data in enumerate(source_data["titles"], 1):
@@ -1733,11 +890,11 @@ def render_html_content(
                     rank_text = "?"
 
                 new_titles_html += f"""
-                        <div class="new-item">
-                            <div class="new-item-number">{idx}</div>
-                            <div class="new-item-rank {rank_class}">{rank_text}</div>
-                            <div class="new-item-content">
-                                <div class="new-item-title">"""
+                        <div class="new-item list-item">
+                            <div class="item-number new-item-number">{idx}</div>
+                            <div class="badge {rank_class}">{rank_text}</div>
+                            <div class="item-content">
+                                <div class="item-title">"""
 
                 # 处理新增新闻的链接
                 escaped_title = html_escape(title_data["title"])
@@ -1752,7 +909,7 @@ def render_html_content(
                 new_titles_html += """
                                 </div>
                             </div>
-                        </div>"""
+                        </div></div>"""
 
             new_titles_html += """
                     </div>"""
@@ -1796,12 +953,12 @@ def render_html_content(
             return ""
 
         rss_html = f"""
-                <div class="rss-section">
+                <div class="rss-section animate-fade-in stagger-4">
                     <div class="rss-section-header">
                         <div class="rss-section-title">{title}</div>
                         <div class="rss-section-count">{total_count} 条</div>
                     </div>
-                    <div class="rss-feeds-grid">"""
+                    <div class="rss-feeds-grid grid-2col">"""
 
         # 按关键词分组渲染（与热榜格式一致）
         for stat in stats:
@@ -1813,13 +970,14 @@ def render_html_content(
             keyword_count = len(titles)
 
             rss_html += f"""
-                    <div class="feed-group">
-                        <div class="feed-header">
-                            <div class="feed-name">{html_escape(keyword)}</div>
-                            <div class="feed-count">{keyword_count} 条</div>
-                        </div>"""
+                    <div class="feed-group card">
+                        <div class="card-header">
+                            <h3 class="card-title">{html_escape(keyword)}</h3>
+                            <div class="card-meta">{keyword_count} 条</div>
+                        </div>
+                        <div class="card-body"><div class="card-list-container">"""
 
-            for title_data in titles:
+            for j, title_data in enumerate(titles, 1):
                 item_title = title_data.get("title", "")
                 url = title_data.get("url", "")
                 time_display = title_data.get("time_display", "")
@@ -1827,21 +985,21 @@ def render_html_content(
                 is_new = title_data.get("is_new", False)
 
                 rss_html += """
-                        <div class="rss-item">
-                            <div class="rss-meta">"""
+                        <div class="rss-item list-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-header">"""
 
                 if time_display:
-                    rss_html += f'<span class="rss-time">{html_escape(time_display)}</span>'
+                    rss_html += f'<span class="text-sm-muted">{html_escape(time_display)}</span>'
 
                 if source_name:
-                    rss_html += f'<span class="rss-author">{html_escape(source_name)}</span>'
+                    rss_html += f'<span class="text-sm-muted">{html_escape(source_name)}</span>'
 
                 if is_new:
                     rss_html += '<span class="rss-author" style="color: #dc2626;">NEW</span>'
 
                 rss_html += """
                             </div>
-                            <div class="rss-title">"""
+                            <div class="item-title rss-title">"""
 
                 escaped_title = html_escape(item_title)
                 if url:
@@ -1854,8 +1012,11 @@ def render_html_content(
                             </div>
                         </div>"""
 
+            rss_html += '</div>'
+            if len(titles) > 5:
+                rss_html += f'<button class="view-more-btn" onclick="toggleViewMore(this)">查看更多 ({len(titles) - 5})</button>'
             rss_html += """
-                    </div>"""
+                    </div></div>"""
 
         rss_html += """
                     </div>
@@ -1934,7 +1095,7 @@ def render_html_content(
                 all_groups.append({"name": f.get("name", f.get("id", "")), "count": len(items)})
 
         standalone_html = f"""
-                <div class="standalone-section">
+                <div class="standalone-section animate-fade-in stagger-4">
                     <div class="standalone-section-header">
                         <div class="standalone-section-title">独立展示区</div>
                         <div class="standalone-section-count">{total_count} 条</div>
@@ -1945,15 +1106,19 @@ def render_html_content(
             standalone_html += """
                     <div class="tab-bar standalone-tab-bar">"""
             for idx, g in enumerate(all_groups):
-                active = ' active' if idx == 0 else ''
+                chip_class = "tab-btn"
+                if idx >= 8:
+                    chip_class += " hidden-chip"
                 standalone_html += f"""
-                        <button class="tab-btn{active}" data-standalone-tab="{idx}">{html_escape(g["name"])}<span class="tab-count">{g["count"]}</span></button>"""
+                        <button class="{chip_class}" data-standalone-tab="{idx}">{html_escape(g["name"])}<span class="tab-count">{g["count"]}</span></button>"""
+            if len(all_groups) > 8:
+                standalone_html += f'<button class="tab-btn tab-expand-btn" data-expand-chips="false">+ {len(all_groups) - 8}</button>'
             standalone_html += f"""
-                        <button class="tab-btn" data-standalone-tab="all">全部<span class="tab-count">{total_count}</span></button>
+                        <button class="tab-btn active hidden-chip" data-standalone-tab="all">全部<span class="tab-count">{total_count}</span></button>
                     </div>"""
 
         standalone_html += """
-                    <div class="standalone-groups-grid">"""
+                    <div class="standalone-groups-grid grid-2col">"""
 
         group_idx = 0
         # 渲染热榜平台（复用 word-group 结构）
@@ -1964,11 +1129,12 @@ def render_html_content(
                 continue
 
             standalone_html += f"""
-                    <div class="standalone-group" data-standalone-tab="{group_idx}">
-                        <div class="standalone-header">
-                            <div class="standalone-name">{html_escape(platform_name)}</div>
-                            <div class="standalone-count">{len(items)} 条</div>
-                        </div>"""
+                    <div class="standalone-group card" data-standalone-tab="{group_idx}">
+                        <div class="card-header">
+                            <h3 class="card-title">{html_escape(platform_name)}</h3>
+                            <div class="card-meta">{len(items)} 条</div>
+                        </div>
+                        <div class="card-body"><div class="card-list-container">"""
 
             # 渲染每个条目（复用 news-item 结构）
             for j, item in enumerate(items, 1):
@@ -1981,10 +1147,10 @@ def render_html_content(
                 count = item.get("count", 1)
 
                 standalone_html += f"""
-                        <div class="news-item">
-                            <div class="news-number">{j}</div>
-                            <div class="news-content">
-                                <div class="news-header">"""
+                        <div class="news-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-number news-number">{j}</div>
+                            <div class="item-content">
+                                <div class="item-header">"""
 
                 # 排名显示（复用 rank-num 样式，无 # 前缀）
                 if ranks:
@@ -2018,18 +1184,18 @@ def render_html_content(
                 if first_time and last_time and first_time != last_time:
                     first_time_display = convert_time_for_display(first_time)
                     last_time_display = convert_time_for_display(last_time)
-                    standalone_html += f'<span class="time-info">{html_escape(first_time_display)}~{html_escape(last_time_display)}</span>'
+                    standalone_html += f'<span class="text-sm-muted">{html_escape(first_time_display)}~{html_escape(last_time_display)}</span>'
                 elif first_time:
                     first_time_display = convert_time_for_display(first_time)
-                    standalone_html += f'<span class="time-info">{html_escape(first_time_display)}</span>'
+                    standalone_html += f'<span class="text-sm-muted">{html_escape(first_time_display)}</span>'
 
                 # 出现次数（复用 count-info 样式）
                 if count > 1:
-                    standalone_html += f'<span class="count-info">{count}次</span>'
+                    standalone_html += f'<span class="text-sm-success">{count}次</span>'
 
                 standalone_html += """
                                 </div>
-                                <div class="news-title">"""
+                                <div class="item-title news-title">"""
 
                 # 标题和链接（复用 news-link 样式）
                 escaped_title = html_escape(title)
@@ -2044,8 +1210,11 @@ def render_html_content(
                             </div>
                         </div>"""
 
+            standalone_html += '</div>'
+            if len(items) > 5:
+                standalone_html += f'<button class="view-more-btn" onclick="toggleViewMore(this)">查看更多 ({len(items) - 5})</button>'
             standalone_html += """
-                    </div>"""
+                    </div></div>"""
             group_idx += 1
 
         # 渲染 RSS 源（复用相同结构）
@@ -2056,11 +1225,12 @@ def render_html_content(
                 continue
 
             standalone_html += f"""
-                    <div class="standalone-group" data-standalone-tab="{group_idx}">
-                        <div class="standalone-header">
-                            <div class="standalone-name">{html_escape(feed_name)}</div>
-                            <div class="standalone-count">{len(items)} 条</div>
-                        </div>"""
+                    <div class="standalone-group card" data-standalone-tab="{group_idx}">
+                        <div class="card-header">
+                            <h3 class="card-title">{html_escape(feed_name)}</h3>
+                            <div class="card-meta">{len(items)} 条</div>
+                        </div>
+                        <div class="card-body"><div class="card-list-container">"""
 
             for j, item in enumerate(items, 1):
                 title = item.get("title", "")
@@ -2069,10 +1239,10 @@ def render_html_content(
                 author = item.get("author", "")
 
                 standalone_html += f"""
-                        <div class="news-item">
-                            <div class="news-number">{j}</div>
-                            <div class="news-content">
-                                <div class="news-header">"""
+                        <div class="news-item" style="display: {'none' if j > 5 else 'flex'}">
+                            <div class="item-number news-number">{j}</div>
+                            <div class="item-content">
+                                <div class="item-header">"""
 
                 # 时间显示（格式化 ISO 时间）
                 if published_at:
@@ -2086,15 +1256,15 @@ def render_html_content(
                     except:
                         time_display = published_at
 
-                    standalone_html += f'<span class="time-info">{html_escape(time_display)}</span>'
+                    standalone_html += f'<span class="text-sm-muted">{html_escape(time_display)}</span>'
 
                 # 作者显示
                 if author:
-                    standalone_html += f'<span class="source-name">{html_escape(author)}</span>'
+                    standalone_html += f'<span class="text-sm-muted">{html_escape(author)}</span>'
 
                 standalone_html += """
                                 </div>
-                                <div class="news-title">"""
+                                <div class="item-title news-title">"""
 
                 escaped_title = html_escape(title)
                 if url:
@@ -2108,8 +1278,11 @@ def render_html_content(
                             </div>
                         </div>"""
 
+            standalone_html += '</div>'
+            if len(items) > 5:
+                standalone_html += f'<button class="view-more-btn" onclick="toggleViewMore(this)">查看更多 ({len(items) - 5})</button>'
             standalone_html += """
-                    </div>"""
+                    </div></div>"""
             group_idx += 1
 
         standalone_html += """
@@ -2128,6 +1301,15 @@ def render_html_content(
     ai_html = render_ai_analysis_html_rich(ai_analysis) if ai_analysis else ""
 
     # 准备各区域内容映射
+
+    events_html = f'<div class="partition partition-overview">{events_html}</div>' if events_html else ""
+    stats_html = f'<div class="partition partition-hotlist">{stats_html}</div>' if stats_html else ""
+    rss_stats_html = f'<div class="partition partition-rss">{rss_stats_html}</div>' if rss_stats_html else ""
+    rss_new_html = f'<div class="partition partition-rss">{rss_new_html}</div>' if rss_new_html else ""
+    new_titles_html = f'<div class="partition partition-overview">{new_titles_html}</div>' if new_titles_html else ""
+    standalone_html = f'<div class="partition partition-standalone">{standalone_html}</div>' if standalone_html else ""
+    ai_html = f'<div class="partition partition-ai_analysis">{ai_html}</div>' if ai_html else ""
+    
     region_contents = {
         "events": events_html,
         "hotlist": stats_html,
@@ -2171,6 +1353,7 @@ def render_html_content(
             has_previous_content = True
 
     html += """
+            </div>
             </div>
 
             <div class="footer">
@@ -2288,10 +1471,10 @@ def render_html_content(
                 var groups = document.querySelectorAll('.word-group[data-tab-index]');
                 var isWide = document.body.classList.contains('wide-mode');
                 if (!isWide || groups.length <= 2) {
-                    tabBar.classList.add('tab-hidden');
+                    // tabBar.classList.add('tab-hidden');
                     groups.forEach(function(g) { g.style.display = ''; });
                 } else {
-                    tabBar.classList.remove('tab-hidden');
+                    // tabBar.classList.remove('tab-hidden');
                     var activeTab = tabBar.querySelector('.tab-btn.active');
                     if (activeTab) { activeTab.click(); }
                     else {
@@ -2382,10 +1565,10 @@ def render_html_content(
                 var groups = document.querySelectorAll('.standalone-group[data-standalone-tab]');
                 var isWide = document.body.classList.contains('wide-mode');
                 if (!isWide || groups.length <= 1) {
-                    tabBar.classList.add('tab-hidden');
+                    // tabBar.classList.add('tab-hidden');
                     groups.forEach(function(g) { g.style.display = ''; });
                 } else {
-                    tabBar.classList.remove('tab-hidden');
+                    // tabBar.classList.remove('tab-hidden');
                     var activeBtn = tabBar.querySelector('.tab-btn.active');
                     if (activeBtn) activeBtn.click();
                     else { var first = tabBar.querySelector('.tab-btn'); if (first) first.click(); }
@@ -2767,6 +1950,53 @@ def render_html_content(
                 }
             }
 
+
+            // App Shell Navigation
+            document.body.dataset.partition = 'overview';
+            document.querySelectorAll('.main-nav-item').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.main-nav-item').forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                    document.body.dataset.partition = this.dataset.partition;
+                    window.scrollTo({top: 0, behavior: 'smooth'});
+                });
+            });
+
+            // Tab Expand
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('tab-expand-btn')) {
+                    var btn = e.target;
+                    var tabBar = btn.closest('.tab-bar');
+                    var isExpanded = btn.dataset.expandChips === 'true';
+                    if (isExpanded) {
+                        tabBar.querySelectorAll('.hidden-chip.revealed').forEach(el => el.classList.remove('revealed'));
+                        btn.dataset.expandChips = 'false';
+                        btn.textContent = '+ ' + (tabBar.querySelectorAll('.tab-btn').length - 1 - tabBar.querySelectorAll('.tab-expand-btn').length);
+                    } else {
+                        tabBar.querySelectorAll('.hidden-chip').forEach(el => el.classList.add('revealed'));
+                        btn.dataset.expandChips = 'true';
+                        btn.textContent = '收起';
+                    }
+                }
+            });
+
+            // View More
+            window.toggleViewMore = function(btn) {
+                var container = btn.previousElementSibling;
+                var isExpanded = btn.dataset.expanded === 'true';
+                if (isExpanded) {
+                    container.querySelectorAll('.news-item, .rss-item').forEach((el, idx) => {
+                        if (idx >= 5) el.style.display = 'none';
+                    });
+                    btn.dataset.expanded = 'false';
+                    btn.textContent = '查看更多 (' + (container.querySelectorAll('.news-item, .rss-item').length - 5) + ')';
+                } else {
+                    container.querySelectorAll('.news-item, .rss-item').forEach(el => el.style.display = 'flex');
+                    btn.dataset.expanded = 'true';
+                    btn.textContent = '收起';
+                }
+            };
+
             document.addEventListener('DOMContentLoaded', function() {
                 window.scrollTo(0, 0);
 
@@ -2779,10 +2009,10 @@ def render_html_content(
                     if (btn) btn.textContent = '⊡';
                 }
 
-                // 暗色模式恢复
+                // 暗色模式恢复 (默认开启)
                 var savedDark = null;
                 try { savedDark = localStorage.getItem('trendradar-dark-mode'); } catch(e) {}
-                if (savedDark === '1') {
+                if (savedDark === '1' || savedDark === null) {
                     document.body.classList.add('dark-mode');
                     var darkBtn = document.querySelector('.toggle-dark-btn');
                     if (darkBtn) darkBtn.textContent = '☀';
