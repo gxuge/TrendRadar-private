@@ -135,6 +135,57 @@ jobs:
             exit 1
           fi
 
+      - name: Validate remote storage config (masked)
+        if: success()
+        env:
+          S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+          S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
+          S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+          S3_ENDPOINT_URL: ${{ secrets.S3_ENDPOINT_URL }}
+          S3_REGION: ${{ secrets.S3_REGION }}
+        run: |
+          mask_value() {
+            local v="$1"
+            local n=${#v}
+            if [ "$n" -le 8 ]; then
+              printf "%s" "****"
+            else
+              printf "%s" "${v:0:4}****${v: -4}"
+            fi
+          }
+
+          check_var() {
+            local name="$1"
+            local value="${!name:-}"
+            if [ -z "$value" ]; then
+              echo "::error::$name is empty"
+              return 1
+            fi
+            echo "$name=OK ($(mask_value "$value"), len=${#value})"
+            return 0
+          }
+
+          echo "[R2/S3 preflight] STORAGE_BACKEND=remote"
+          missing=0
+
+          check_var "S3_BUCKET_NAME" || missing=1
+          check_var "S3_ACCESS_KEY_ID" || missing=1
+          check_var "S3_SECRET_ACCESS_KEY" || missing=1
+          check_var "S3_ENDPOINT_URL" || missing=1
+
+          if [ -n "${S3_REGION:-}" ]; then
+            echo "S3_REGION=OK ($(mask_value "$S3_REGION"), len=${#S3_REGION})"
+          else
+            echo "S3_REGION=EMPTY (optional for R2)"
+          fi
+
+          if [ "$missing" -ne 0 ]; then
+            echo "::error::Remote storage config incomplete. Please set repository secrets."
+            exit 1
+          fi
+
+          echo "[R2/S3 preflight] all required secrets are present"
+
       - name: Run crawler
         if: success()
         env:
