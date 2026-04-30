@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Optional, Dict, Any
 from email.utils import parsedate_to_datetime
+from urllib.parse import urlparse, urljoin
 
 try:
     import feedparser
@@ -58,6 +59,12 @@ class RSSParser:
         Returns:
             解析后的条目列表
         """
+        # AIbase 官方页面（news/daily）兜底解析，避免依赖第三方 RSSHub
+        if self._is_aibase_listing_page(content, feed_url):
+            aibase_items = self._parse_aibase_listing_html(content, feed_url)
+            if aibase_items:
+                return aibase_items
+
         # 先尝试检测 JSON Feed
         if self._is_json_feed(content):
             return self._parse_json_feed(content, feed_url)
@@ -73,6 +80,67 @@ class RSSParser:
             item = self._parse_entry(entry)
             if item:
                 items.append(item)
+
+        return items
+
+    def _is_aibase_listing_page(self, content: str, feed_url: str) -> bool:
+        """检测是否为 AIbase 官方新闻列表页"""
+        if not content or not feed_url:
+            return False
+
+        try:
+            parsed = urlparse(feed_url)
+        except Exception:
+            return False
+
+        host = (parsed.netloc or "").lower()
+        path = (parsed.path or "").rstrip("/")
+        if host != "news.aibase.cn":
+            return False
+        if path not in {"/news", "/daily"}:
+            return False
+
+        head = content[:2000].lower()
+        return "<html" in head and "aibase" in head
+
+    def _parse_aibase_listing_html(self, content: str, feed_url: str) -> List[ParsedRSSItem]:
+        """
+        解析 AIbase 官方列表页（/news, /daily）中的文章卡片
+
+        提取规则：
+        - 链接：<a href="/news/12345"> 或 <a href="/daily/12345">
+        - 标题：同一个卡片里 img 的 alt 属性
+        """
+        parsed = urlparse(feed_url)
+        base_url = f"{parsed.scheme or 'https'}://{parsed.netloc or 'news.aibase.cn'}"
+
+        pattern = re.compile(
+            r'<a\s+href="(/(?:news|daily)/\d+)"[^>]*>(?:(?!</a>).)*?<img[^>]*alt="([^"]+)"',
+            re.IGNORECASE | re.DOTALL,
+        )
+
+        items: List[ParsedRSSItem] = []
+        seen_urls = set()
+
+        for match in pattern.finditer(content):
+            rel_url, raw_title = match.groups()
+            title = self._clean_text(raw_title)
+            url = urljoin(base_url, html.unescape(rel_url))
+
+            if not title or not url or url in seen_urls:
+                continue
+
+            seen_urls.add(url)
+            items.append(
+                ParsedRSSItem(
+                    title=title,
+                    url=url,
+                    published_at=None,
+                    summary=None,
+                    author=None,
+                    guid=url,
+                )
+            )
 
         return items
 
